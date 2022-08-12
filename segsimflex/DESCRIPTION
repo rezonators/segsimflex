@@ -1,0 +1,18 @@
+Package: segsimflex
+Type: Package
+Title: Similarity Score Calculation
+Version: 0.1.0
+Author: Yujie Li
+Maintainer: Ryan Lai <kayaulai@umail.ucsb.edu>
+Description: Calculate Similarity Score between two different annotations on the same discourse 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+Imports: 
+    data.table,
+    dplyr,
+    readr,
+    reshape
+Depends: 
+    tidyverse
