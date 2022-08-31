@@ -98,7 +98,7 @@ calCost <- function(l1,l2,m){
       return ("different length of elements")
     }
   }  # check element length
-
+  
   cost=0  # initialize the total cost
   t1=""
   t2=""  # temp for cost between two fixed boundries
@@ -108,17 +108,17 @@ calCost <- function(l1,l2,m){
       e2 =substring(l2[s],i,i)  # ith element in t2
       if (e1==e2 & e1!=" " & e2!=" "){
         if (t1!="" & t2!="" ){
-          t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
+          t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))  
           t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))  # formated dataframe of t1 t2 and length list
-          paresult=parSim(t11,t22)  # result of cost and record between two fixed boundries
+          paresult=parSim(t11,t22,m)  # result of cost and record between two fixed boundries
           sd=sTOd(paresult[2])  # formated process of change
-          cost=cost+as.numeric(paresult[1])
+          cost=cost+as.numeric(paresult[1])  
           if (paresult[2] !=""){
             df=data.frame(speaker=s,
                           type=sd$type,
                           oldPosition=as.numeric(sd$oldPosition)+i-length(t1),
-                          newPosition=as.numeric(sd$newPosition)+i-length(t1),
-                          oldChar=sd$oldChar,
+                          newPosition=as.numeric(sd$newPosition)+i-length(t1), 
+                          oldChar=sd$oldChar, 
                           newChar=sd$newChar)
             record = rbind(record,df)
           }
@@ -131,23 +131,23 @@ calCost <- function(l1,l2,m){
             df=data.frame(speaker=s,
                           type="s",
                           oldPosition=i,
-                          newPosition=i,
-                          oldChar=e1,
+                          newPosition=i, 
+                          oldChar=e1, 
                           newChar=e2)
             record=rbind(record,df)
           }
           if (t1!="" & t2!= ""){
             t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
             t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))
-            paresult=parSim(t11,t22)
+            paresult=parSim(t11,t22,m)
             sd=sTOd(paresult[2])
             cost=cost+as.numeric(paresult[1])
             if (paresult[2] !=""){
               df=data.frame(speaker=s,
                             type=sd$type,
                             oldPosition=as.numeric(sd$oldPosition)+i-length(t1),
-                            newPosition=as.numeric(sd$newPosition)+i-length(t1),
-                            oldChar=sd$oldChar,
+                            newPosition=as.numeric(sd$newPosition)+i-length(t1), 
+                            oldChar=sd$oldChar, 
                             newChar=sd$newChar)
               record = rbind(record,df)
             }
@@ -163,15 +163,15 @@ calCost <- function(l1,l2,m){
     if (t1!="" & t2!= ""){
       t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
       t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))
-      paresult=parSim(t11,t22)
+      paresult=parSim(t11,t22,m)
       sd=sTOd(paresult[2])
       cost=cost+as.numeric(paresult[1])
       if (paresult[2] !=""){
         df=data.frame(speaker=s,
                       type=sd$type,
                       oldPosition=as.numeric(sd$oldPosition)+i-length(t1),
-                      newPosition=as.numeric(sd$newPosition)+i-length(t1),
-                      oldChar=sd$oldChar,
+                      newPosition=as.numeric(sd$newPosition)+i-length(t1), 
+                      oldChar=sd$oldChar, 
                       newChar=sd$newChar)
         record = rbind(record,df)
       }
@@ -185,23 +185,23 @@ calCost <- function(l1,l2,m){
 # Calculate cost between each sub string Without record
 parSim <- function(t1,t2,m){
   transCost=0.5
-
+  
   e1 =t1$e[1] # first element of t1
   e2 =t2$e[1] # first element of t2
-
+  
   order= c(",", ".", "?", "-", "+", ";", " ")
   m=1-m
   subCost = m[which (order == e1),which (order == e2)]
-
+  
   s1=t1[2:nrow(t1),]  # sublist without first element
   s2=t2[2:nrow(t2),]
-
+  
   t=rbind(t2[2,],t2[1,],t2[3:nrow(t1),])  # switch list of first two element
-
-  sdf=paste0("s","#",t1$n[1],"#",e1,"#",t2$n[1],"#",e2,"&")  # substitution process moduel
-  tdf=paste0("t","#",t1$n[1],"#",e1,"#",t1$n[2],"#",t1$e[2],"#",t2$n[1],"#",e2,"#",t2$n[2],"#",t2$e[2],"&") # substitution process moduel
-
-
+  
+  sdf=paste0("s","#",t1$n[1],"#",e1,"#",t2$n[1],"#",e2,"&")  # substitution process moduel 
+  tdf=paste0("t","#",t1$n[1],"#",e1,"#",t1$n[2],"#",t1$e[2],"#",t2$n[1],"#",e2,"#",t2$n[2],"#",t2$e[2],"&") # substitution process moduel 
+  
+  
   if (nrow(t1)<=1){
     if (e1==e2){
       return (c(0,''))
@@ -210,39 +210,39 @@ parSim <- function(t1,t2,m){
     }
   }else{
     if (e1==e2){
-      return(c(parSim(s1,s2)[1],
-               paste0(parSim(s1,s2)[2])))
+      return(c(parSim(s1,s2,m)[1],
+               paste0(parSim(s1,s2,m)[2])))
     }else{
       if(e1!=" " & e2!=" "){
-        return(c(subCost+as.numeric(parSim(s1,s2)[1]),
-                 paste0(parSim(s1,s2)[2],sdf))
+        return(c(subCost+as.numeric(parSim(s1,s2,m)[1]),
+                 paste0(parSim(s1,s2,m)[2],sdf))
         )
       }else{
         if ((t2$e[2]!=" " & t2$e[1]==" ")){
-          if (subCost+as.numeric(parSim(s1,s2)[1])
-              <transCost+as.numeric(parSim(t1,t)[1])){
-            return(c(subCost+as.numeric(parSim(s1,s2)[1]),
-                     paste0(parSim(s1,s2)[2],sdf))
+          if (subCost+as.numeric(parSim(s1,s2,m)[1])
+              <transCost+as.numeric(parSim(t1,t,m)[1])){
+            return(c(subCost+as.numeric(parSim(s1,s2,m)[1]),
+                     paste0(parSim(s1,s2,m)[2],sdf))
             )
           }else{
-            return(c(transCost+as.numeric(parSim(t1,t)[1]),
-                     paste0(parSim(t1,t)[2],tdf))
+            return(c(transCost+as.numeric(parSim(t1,t,m)[1]),
+                     paste0(parSim(t1,t,m)[2],tdf))
             )
           }
         }else{if((t2$e[2]==" " & t2$e[1]!=" ")){
-          if (subCost+as.numeric(parSim(s1,s2)[1])
-              <transCost+as.numeric(parSim(t1,t)[1])){
-            return(c(subCost+as.numeric(parSim(s1,s2)[1]),
-                     paste0(parSim(s1,s2)[2],sdf))
+          if (subCost+as.numeric(parSim(s1,s2,m)[1])
+              <transCost+as.numeric(parSim(t1,t,m)[1])){
+            return(c(subCost+as.numeric(parSim(s1,s2,m)[1]),
+                     paste0(parSim(s1,s2,m)[2],sdf))
             )
           }else{
-            return(c(transCost+as.numeric(parSim(t1,t)[1]),
-                     paste0(parSim(t1,t)[2],tdf))
+            return(c(transCost+as.numeric(parSim(t1,t,m)[1]),
+                     paste0(parSim(t1,t,m)[2],tdf))
             )
           }
         }else{
-          return(c(subCost+as.numeric(parSim(s1,s2)[1]),
-                   paste0(parSim(s1,s2)[2],sdf))
+          return(c(subCost+as.numeric(parSim(s1,s2,m)[1]),
+                   paste0(parSim(s1,s2,m)[2],sdf))
           )
         }
         }
@@ -251,7 +251,7 @@ parSim <- function(t1,t2,m){
   }
 }  # input two sub boundry list
 # Without record
-# Calculate cost of two boundary lists, and confusion matrix m
+# Calculate cost of two boundary lists, and confusion matrix m 
 # ","  "." "?" "-" "+" ";" " "
 # + for --
 # ; for IU boundry without a punctuation
@@ -277,8 +277,8 @@ calCost1<-function(l1,l2, m){
       return ("different length of elements")
     }
   }  # check element length
-
-  cost=0
+  
+  cost=0  
   t1=""
   t2=""  # temp for cost between two fixed boundries
   for (s in seq(1,length(l1))){  # for each speacker
@@ -286,7 +286,7 @@ calCost1<-function(l1,l2, m){
       e1 =substring(l1[s],i,i)
       e2 =substring(l2[s],i,i)
       if (e1==e2 & e1!=" " & e2!=" "){
-        cost=cost+parSim1(t1,t2)
+        cost=cost+parSim1(t1,t2,m)
         # record
         t1=""
         t2=""
@@ -294,7 +294,7 @@ calCost1<-function(l1,l2, m){
         if (e1!=e2 & e1!=" " & e2!=" " ){
           cost=cost+m[which (order == e1),which (order == e2)]
           record=rbind(record,data.frame(old= e1, new = e2))
-          cost=cost+parSim1(t1,t2)
+          cost=cost+parSim1(t1,t2,m)
           # record
           t1=""
           t2=""
@@ -304,7 +304,7 @@ calCost1<-function(l1,l2, m){
         }
       }
     }
-    cost=cost+parSim1(t1,t2)
+    cost=cost+parSim1(t1,t2,m)
     # record
     t1=""
     t2=""
@@ -330,16 +330,16 @@ parSim1<- function(t1,t2, m){
     }
   }else{
     if (e1==e2){
-      return(parSim1(s1,s2))
+      return(parSim1(s1,s2,m))
     }else{
       if(e1!=" " & e2!=" "){
-        return(m[which (order == e1),which (order == e2)]+parSim1(s1,s2))
+        return(m[which (order == e1),which (order == e2)]+parSim1(s1,s2,m))
       }else{
         if ((substring(t2,2,2)!=" " & substring(t2,1,1)==" ")
             | (substring(t2,2,2)==" " & substring(t2,1,1)!=" ")){
-          return(min(m[which (order == e1),which (order == e2)]+parSim1(s1,s2),transCost+parSim1(t1,t)))
+          return(min(m[which (order == e1),which (order == e2)]+parSim1(s1,s2,m),transCost+parSim1(t1,t)))
         }else{
-          return(m[which (order == e1),which (order == e2)]+parSim1(s1,s2))
+          return(m[which (order == e1),which (order == e2)]+parSim1(s1,s2,m))
         }
       }
     }
