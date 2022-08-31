@@ -469,3 +469,6 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
 
 
 
+
+   
+
