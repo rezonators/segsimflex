@@ -418,9 +418,11 @@ checkDiff <- function(l1,l2){
   return(data.frame(d1,d2))
 }
 
+
+
 #' Similarity score calculation
 #'
-#' @param d1 annotation_1 from read_csv
+#' @param d1 annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU
 #' @param d2 annotation_2 from read_csv
 #' @param record whether you want to get the step of transformation (slow process)
 #' @param m similarity matrix to customize substitution cost
