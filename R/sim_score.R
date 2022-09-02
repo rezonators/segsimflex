@@ -337,7 +337,7 @@ parSim1<- function(t1,t2, m){
       }else{
         if ((substring(t2,2,2)!=" " & substring(t2,1,1)==" ")
             | (substring(t2,2,2)==" " & substring(t2,1,1)!=" ")){
-          return(min(m[which (order == e1),which (order == e2)]+parSim1(s1,s2,m),transCost+parSim1(t1,t)))
+          return(min(m[which (order == e1),which (order == e2)]+parSim1(s1,s2,m),transCost+parSim1(t1,t,m)))
         }else{
           return(m[which (order == e1),which (order == e2)]+parSim1(s1,s2,m))
         }
