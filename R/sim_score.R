@@ -84,7 +84,13 @@ genBd <- function(d,sep){
 # With record
 # Calculate cost of two boundary lists
 # sub=1 cost, trans=0.5 cost/dist
-calCost <- function(l1,l2,m){
+calCost <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
+                                           0,1,0,0,0,0,0,
+                                           0,0,1,0,0,0,0,
+                                           0,0,0,1,0,0,0,
+                                           0,0,0,0,1,0,0,
+                                           0,0,0,0,0,1,0,
+                                           0,0,0,0,0,0,1), nrow=7)){
   record=data.frame()  # result dataframe of record process
   subCost=1  # pre-set substitution cost
   transCost=0.5  # pre-set transition cost of one space
@@ -183,7 +189,13 @@ calCost <- function(l1,l2,m){
 }  # input 2 genBd
 # With record
 # Calculate cost between each sub string Without record
-parSim <- function(t1,t2,m){
+parSim <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
+                                          0,1,0,0,0,0,0,
+                                          0,0,1,0,0,0,0,
+                                          0,0,0,1,0,0,0,
+                                          0,0,0,0,1,0,0,
+                                          0,0,0,0,0,1,0,
+                                          0,0,0,0,0,0,1), nrow=7)){
   transCost=0.5
   
   e1 =t1$e[1] # first element of t1
@@ -264,7 +276,32 @@ parSim <- function(t1,t2,m){
 #                  0,0,0,0,1,0,0,
 #                  0,0,0,0,0,1,0,
 #                  0,0,0,0,0,0,1), nrow=7)
-calCost1<-function(l1,l2, m){
+
+#' Calculate the cost of changing one annotation to the other
+#'
+#' @param l1 IU list1: a list of intonation units
+#' @param l2 IU list1: a list of intonation units
+#' @param m similarity matrix to customize substitution cost
+#'
+#' @return cost 
+#' @export 
+#'
+#' @examples
+#' m=matrix(data =
+#' c(1,0,0,0,0,0,0,
+#' 0,1,0,0,0,0,0,
+#' 0,0,1,0,0,0,0,
+#' 0,0,0,1,0,0,0,
+#' 0,0,0,0,1,0,0,
+#' 0,0,0,0,0,1,0,
+#' 0,0,0,0,0,0,1), nrow=7)
+calCost1<-function(l1,l2, m=matrix(data =c(1,0,0,0,0,0,0,
+                                           0,1,0,0,0,0,0,
+                                           0,0,1,0,0,0,0,
+                                           0,0,0,1,0,0,0,
+                                           0,0,0,0,1,0,0,
+                                           0,0,0,0,0,1,0,
+                                           0,0,0,0,0,0,1), nrow=7)){
   record=data.frame()
   order= c(",", ".", "?", "-", "+", ";", " ")
   transCost=0.5
@@ -313,7 +350,13 @@ calCost1<-function(l1,l2, m){
 }  # input 2 genBd
 # Without record
 # Calulate cost between each sub string Without record
-parSim1<- function(t1,t2, m){
+parSim1<- function(t1,t2, m=matrix(data =c(1,0,0,0,0,0,0,
+                                           0,1,0,0,0,0,0,
+                                           0,0,1,0,0,0,0,
+                                           0,0,0,1,0,0,0,
+                                           0,0,0,0,1,0,0,
+                                           0,0,0,0,0,1,0,
+                                           0,0,0,0,0,0,1), nrow=7)){
   order= c(",", ".", "?", "-", "+", ";", " ")
   transCost=0.5
   m=1-m
@@ -423,12 +466,12 @@ checkDiff <- function(l1,l2){
 #' Similarity score calculation
 #'
 #' @param d1 annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU
-#' @param d2 annotation_2 from read_csv
+#' @param d2 annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU
 #' @param record whether you want to get the step of transformation (slow process)
 #' @param m similarity matrix to customize substitution cost
 #'
 #' @return similarity score
-#' @export
+#' @export 
 #'
 #' @examples
 #' m=matrix(data =

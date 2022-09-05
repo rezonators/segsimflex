@@ -16,7 +16,7 @@ sim_Score(
 \arguments{
 \item{d1}{annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU}
 
-\item{d2}{annotation_2 from read_csv}
+\item{d2}{annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU}
 
 \item{record}{whether you want to get the step of transformation (slow process)}
 
