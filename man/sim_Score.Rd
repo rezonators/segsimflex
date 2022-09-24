@@ -10,7 +10,9 @@ sim_Score(
   record = FALSE,
   m = matrix(data = c(1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
     0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1),
-    nrow = 7)
+    nrow = 7),
+  boundaries = c(",", ".", "?", "-", "+"),
+  noboundary = ";"
 )
 }
 \arguments{
@@ -21,6 +23,10 @@ sim_Score(
 \item{record}{whether you want to get the step of transformation (slow process)}
 
 \item{m}{similarity matrix to customize substitution cost}
+
+\item{boundaries}{a list of boundary symbols that will exist in the data}
+
+\item{noboundary}{assign a symbol for no boundary}
 }
 \value{
 similarity score

@@ -4,13 +4,7 @@
 \alias{calCost1}
 \title{Calculate the cost of changing one annotation to the other}
 \usage{
-calCost1(
-  l1,
-  l2,
-  m = matrix(data = c(1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-    0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1),
-    nrow = 7)
-)
+calCost1(l1, l2, m, order)
 }
 \arguments{
 \item{l1}{IU list1: a list of intonation units}
