@@ -200,7 +200,6 @@ parSim <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
   e1 =t1$e[1] # first element of t1
   e2 =t2$e[1] # first element of t2
   
-  m=1-m
   subCost = m[which (order == e1),which (order == e2)]
   
   s1=t1[2:nrow(t1),]  # sublist without first element
@@ -343,7 +342,6 @@ calCost1<-function(l1,l2, m, order){
 # Calulate cost between each sub string Without record
 parSim1<- function(t1,t2, m, order){
   transCost=0.5
-  m=1-m
   e1 =substring(t1,1,1)
   e2 =substring(t2,1,1)
   s1=substring(t1,2,nchar(t1))
@@ -372,6 +370,59 @@ parSim1<- function(t1,t2, m, order){
     }
   }
 }  # input two sub boundry list
+# without trans
+# record
+calCostNoTrans <- function(l1,l2, m, order){
+  record=data.frame()
+  m=1-m
+  if (length(l1)!=length(l2)){
+    return ("different speakers try again")
+  }  # check speaker num
+  for (s in seq(1,length(l1))){
+    if (nchar(l1[s])!=nchar(l2[s])){
+      return ("different length of elements")
+    }
+  }  # check element length
+  
+  cost=0  
+  for (s in seq(1,length(l1))){  # for each speacker
+    for (i in seq(1,nchar(l1[s]))){  # for index of element in each list
+      e1 =substring(l1[s],i,i)
+      e2 =substring(l2[s],i,i)
+      if (e1!=e2){
+        cost=cost+(m[which (order == e1),which (order == e2)])
+        record=rbind(record, data.frame(e1= e1, e2=e2))
+      }
+    }
+  }
+  return(c(cost,record))
+}
+# no record
+calCostNoTrans1 <- function(l1,l2, m, order){
+  record=data.frame()
+  m=1-m
+  if (length(l1)!=length(l2)){
+    return ("different speakers try again")
+  }  # check speaker num
+  for (s in seq(1,length(l1))){
+    if (nchar(l1[s])!=nchar(l2[s])){
+      return ("different length of elements")
+    }
+  }  # check element length
+  
+  cost=0  
+  for (s in seq(1,length(l1))){  # for each speacker
+    for (i in seq(1,nchar(l1[s]))){  # for index of element in each list
+      e1 =substring(l1[s],i,i)
+      e2 =substring(l2[s],i,i)
+      if (e1!=e2){
+        cost=cost+(m[which (order == e1),which (order == e2)])
+      }
+    }
+  }
+  return(cost)
+}
+
 # Transform the parsim String to dataframe.
 sTOd <- function(s){
   slist=strsplit(s,"&")  # split the process string by & into steps
@@ -455,6 +506,7 @@ checkDiff <- function(l1,l2){
 #' @param m similarity matrix to customize substitution cost
 #' @param boundaries a list of boundary symbols that will exist in the data
 #' @param noboundary assign a symbol for no boundary
+#' @param trans choose to enable transposition action or not
 #'
 #' @return similarity score
 #' @export 
@@ -476,7 +528,8 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
                                                             0,0,0,0,0,1,0,
                                                             0,0,0,0,0,0,1), nrow=7),
                     boundaries = c(",", ".", "?", "-", "+"),
-                    noboundary = ";"){
+                    noboundary = ";",
+                    trans = TRUE){
   # check length of prefixed boundaries and matrix
   if (dim(m)[1] != length(boundaries)+2){
     return ("Please keep the dimension of the matrix and boundary list the same")
@@ -489,19 +542,36 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
   d2=reNA(d2)
   se2=sepSpeaker(d2)
   bdlist2=genBd(d2,se2,boundaries,noboundary)
-
+  
   order = c(boundaries,noboundary,' ')
-  if (record == TRUE){
-    cost=calCost(bdlist1,bdlist2,m,order)
-    bdNumber=bdNum(bdlist1)
-    sim=simScore(bdNumber,as.numeric(cost[1]))
-    return(c(cost,sim))
-  }else{
-    cost=calCost1(bdlist1,bdlist2,m,order)
-    bdNumber=bdNum(bdlist1)
-    sim=simScore(bdNumber,cost)
-    return(sim)
+  if (trans == TRUE){
+    
+    if (record == TRUE){
+      cost=calCost(bdlist1,bdlist2,m,order)
+      bdNumber=bdNum(bdlist1)
+      sim=simScore(bdNumber,as.numeric(cost[1]))
+      return(c(cost,sim))
+    }else{
+      cost=calCost1(bdlist1,bdlist2,m,order)
+      bdNumber=bdNum(bdlist1)
+      sim=simScore(bdNumber,cost)
+      return(sim)
+    }
+  } else{
+    if (record == TRUE){
+      cost=calCostNoTrans(bdlist1,bdlist2,m,order)
+      bdNumber=bdNum(bdlist1)
+      sim=simScore(bdNumber,as.numeric(cost[1]))
+      return(c(cost,sim))
+    }else{
+      cost=calCostNoTrans1(bdlist1,bdlist2,m,order)
+      bdNumber=bdNum(bdlist1)
+      sim=simScore(bdNumber,cost)
+      return(sim)
+    }
+    
   }
+    
 }
 
 

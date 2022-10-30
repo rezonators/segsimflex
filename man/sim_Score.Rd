@@ -12,7 +12,8 @@ sim_Score(
     0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1),
     nrow = 7),
   boundaries = c(",", ".", "?", "-", "+"),
-  noboundary = ";"
+  noboundary = ";",
+  trans = TRUE
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ sim_Score(
 \item{boundaries}{a list of boundary symbols that will exist in the data}
 
 \item{noboundary}{assign a symbol for no boundary}
+
+\item{trans}{choose to enable transposition action or not}
 }
 \value{
 similarity score
