@@ -14,8 +14,8 @@ library(rjson)
 #'
 #'
 rezTrans = function(inPath,outPath){
-  yujie_split = rez_load(inPath)
-  temp=yujie_split$unitDF
+  split = rez_load(inPath)
+  temp=split$unitDF
   result=data.frame(Turn = temp$TurnSeq,Speaker = temp$Speaker,Utterance =temp$Utterance)
 
   write.csv(result,outPath)
