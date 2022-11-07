@@ -2,4 +2,5 @@
 
 export(IAA)
 export(calCost1)
+export(rezTrans)
 export(sim_Score)
