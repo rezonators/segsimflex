@@ -1,7 +1,7 @@
 Package: segsimflex
 Type: Package
 Title: Similarity Score and Inter-Annotator Agreement Calculation
-Version: 0.1.2
+Version: 0.1.3
 Author: Yujie Li
 Maintainer: Ryan Lai <kayaulai@umail.ucsb.edu>
 Description: Calculate Similarity Score and Inter-Annotator Agreement between two different annotations on the same discourse 
