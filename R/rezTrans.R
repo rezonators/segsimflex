@@ -14,7 +14,7 @@ library(rjson)
 #'
 #'
 rezTrans = function(inPath,outPath){
-  split = rez_load(inPath)
+  split = importRez(inPath, concatFields = "Utterance")
   temp=split$unitDF
   result=data.frame(Turn = temp$TurnSeq,Speaker = temp$Speaker,Utterance =temp$Utterance)
 
