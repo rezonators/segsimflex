@@ -16,8 +16,6 @@ removeUT = function(data1){
   }
   return(data1)
 }
-data1=removeUT(data1)
-data2=removeUT(data2)
 
 
 #' Compare Difference of Words Between Two Annotations
