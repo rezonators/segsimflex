@@ -55,11 +55,11 @@ compareDiff = function(data1,data2){
           }
         }
         if (a==FALSE){
-          d1=c(d1,paste0(data1$TurnSeq[i],data1$Utterance[i]))
-          d2=c(d2,paste0(data1$TurnSeq[j],data2$Utterance[j]))
+          d1=c(d1,paste0(data1$Turn[i],data1$Utterance[i]))
+          d2=c(d2,paste0(data1$Turn[j],data2$Utterance[j]))
           for (x in c(1:k)){
-            d1=c(d1,paste0(data1$TurnSeq[i+x],data1$Utterance[i+x]))
-            d2=c(d2,paste0(data1$TurnSeq[j],data2$Utterance[j]))
+            d1=c(d1,paste0(data1$Turn[i+x],data1$Utterance[i+x]))
+            d2=c(d2,paste0(data1$Turn[j],data2$Utterance[j]))
           }
           i=i+k+1
           j=j+1
@@ -85,18 +85,18 @@ compareDiff = function(data1,data2){
             }
           }
           if (a==FALSE){
-            d1=c(d1,paste0(data1$TurnSeq[i],data1$Utterance[i]))
-            d2=c(d2,paste0(data1$TurnSeq[j],data2$Utterance[j]))
+            d1=c(d1,paste0(data1$Turn[i],data1$Utterance[i]))
+            d2=c(d2,paste0(data1$Turn[j],data2$Utterance[j]))
             for (x in c(1:k)){
-              d1=c(d1,paste0(data1$TurnSeq[i],data1$Utterance[i]))
-              d2=c(d2,paste0(data1$TurnSeq[j+x],data2$Utterance[j+x]))
+              d1=c(d1,paste0(data1$Turn[i],data1$Utterance[i]))
+              d2=c(d2,paste0(data1$Turn[j+x],data2$Utterance[j+x]))
             }
             j=j+k+1
             i=i+1
           }
         }else{
-          d1=c(d1,paste0(data1$TurnSeq[i],data1$Utterance[i]))
-          d2=c(d2,paste0(data1$TurnSeq[j],data2$Utterance[j]))
+          d1=c(d1,paste0(data1$Turn[i],data1$Utterance[i]))
+          d2=c(d2,paste0(data1$Turn[j],data2$Utterance[j]))
           j=j+1
           i=i+1
         }
