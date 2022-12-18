@@ -37,19 +37,25 @@ sepSpeaker <- function(d){
   }
   return(sep)
 }  # input reNA
+
+
 # Generate boundary lists
 # return one list of boundary
 # + for --
 # ; for IU boundary without a punctuation
 genBd <- function(d,sep,boundaries,noboundary){
+
+  punct_regex = paste0(" (", paste0(boundaries, collapse = "|"), ")")
   num_speaker=length(levels(as.factor(d$Speaker))) # number of speakers
   # remove empty space before punc
   for (s in seq(1,num_speaker)){  # for each speaker
     for (i in seq(1,length(sep[,s]))){  # for each row
       if (!(is.na(substr(sep[i,s],nchar(sep[i,s])-1,nchar(sep[i,s])-1)))){
-        if (substr(sep[i,s],nchar(sep[i,s])-1,nchar(sep[i,s])-1) == " "){
-          sep[i,s] = paste0(substr(sep[i,s],1,nchar(sep[i,s])-2),
-                            substr(sep[i,s],nchar(sep[i,s]),nchar(sep[i,s])))
+        if(substr(sep[i,s],nchar(sep[i,s]),nchar(sep[i,s])) %in% boundaries){
+          if (substr(sep[i,s],nchar(sep[i,s])-1,nchar(sep[i,s])-1) == " "){
+            sep[i,s] = paste0(substr(sep[i,s],1,nchar(sep[i,s])-2),
+                              substr(sep[i,s],nchar(sep[i,s]),nchar(sep[i,s])))
+          }
         }
       }
     }
@@ -62,17 +68,12 @@ genBd <- function(d,sep,boundaries,noboundary){
   for (s in seq(1,num_speaker)){  # for each speaker
     for (i in seq(1,length(sep[,s]))){  # for each row
       if (!(is.na(sep[i,s]))){
-        for (j in seq(2,nchar(sep[i,s])-2)){  # for each element
-          if (substring(sep[i,s],j,j)==" "){
-            bd[1,s]=paste0(bd[1,s]," ")
-          }
-        }
-        if(substring(sep[i,s],
-                     nchar(sep[i,s]),
-                     nchar(sep[i,s])) %in% boundaries){
-          bd[1,s]=paste0(bd[1,s],paste0(substring(sep[i,s],
-                                                  nchar(sep[i,s]),
-                                                  nchar(sep[i,s]))))
+        bd[1,s] = paste0(bd[1,s], str_extract_all(sep[i, s], " ")[[1]] %>% paste0(collapse = ""))
+        lastChar = substring(sep[i,s],
+                             nchar(sep[i,s]),
+                             nchar(sep[i,s]))
+        if(lastChar %in% boundaries){
+          bd[1,s]=paste0(bd[1,s],lastChar)
         }else{
           bd[1,s]=paste0(bd[1,s],noboundary)
         }
@@ -530,16 +531,20 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
                     boundaries = c(",", ".", "?", "-", "+"),
                     noboundary = ";",
                     trans = TRUE){
+  #Remove all double spaces
+  d1 = d1 %>% mutate(Utterance = str_replace_all(Utterance, " +", " "))
+  d2 = d2 %>% mutate(Utterance = str_replace_all(Utterance, " +", " "))
+
   # check length of prefixed boundaries and matrix
   if (dim(m)[1] != length(boundaries)+2){
     return ("Please keep the dimension of the matrix and boundary list the same")
   }
 
-  d1=reNA(d1)
+  d1=reNA(d1) %>% reDS
   se1=sepSpeaker(d1)
   bdlist1=genBd(d1,se1,boundaries,noboundary)
 
-  d2=reNA(d2)
+  d2=reNA(d2) %>% reDS
   se2=sepSpeaker(d2)
   bdlist2=genBd(d2,se2,boundaries,noboundary)
 
