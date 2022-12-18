@@ -21,13 +21,13 @@ reNA <- function(d){
   }
   return(d)
 }  # input reDS
-# Seperate speakers into a dataframe
+# Separate speakers into a dataframe
 sepSpeaker <- function(d){
   num_speaker=length(levels(as.factor(d$Speaker)))  # numbder of speakers
   # Create empty datadrame
   sep=data.frame(array(dim = c(max(summary(as.factor(d$Speaker))),1,num_speaker))) # seperation result
   colnames(sep)=levels(as.factor(d$Speaker))
-  # Seperate
+  # Separate
   for (s in seq(1,num_speaker)){  # for each speaker
     for (i in seq(1,length(d$Utterance))){  # for each row
       if (d$Speaker[i]==levels(as.factor(d$Speaker))[s]){
@@ -37,10 +37,10 @@ sepSpeaker <- function(d){
   }
   return(sep)
 }  # input reNA
-# Generate boundry lists
+# Generate boundary lists
 # return one list of boundary
 # + for --
-# ; for IU boundry without a punctuation
+# ; for IU boundary without a punctuation
 genBd <- function(d,sep,boundaries,noboundary){
   num_speaker=length(levels(as.factor(d$Speaker))) # number of speakers
   # remove empty space before punc
@@ -56,9 +56,9 @@ genBd <- function(d,sep,boundaries,noboundary){
   }
 
 
-  bd=data.frame(array(c('',''),dim = c(1,1,num_speaker)))  # result boundry list
+  bd=data.frame(array(c('',''),dim = c(1,1,num_speaker)))  # result boundary list
   colnames(bd)=levels(as.factor(d$Speaker))
-  # fill in boundry lists
+  # fill in boundary lists
   for (s in seq(1,num_speaker)){  # for each speaker
     for (i in seq(1,length(sep[,s]))){  # for each row
       if (!(is.na(sep[i,s]))){
@@ -96,14 +96,14 @@ calCost <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
   transCost=0.5  # pre-set transition cost of one space
   m=1-m
   if (length(l1)!=length(l2)){
-    return ("different speakers try again")
+    stop ("different speakers try again")
   }  # check speaker num
   for (s in seq(1,length(l1))){
     if (nchar(l1[s])!=nchar(l2[s])){
-      return ("different length of elements")
+      stop ("different length of elements")
     }
   }  # check element length
-  
+
   cost=0  # initialize the total cost
   t1=""
   t2=""  # temp for cost between two fixed boundries
@@ -113,17 +113,17 @@ calCost <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
       e2 =substring(l2[s],i,i)  # ith element in t2
       if (e1==e2 & e1!=" " & e2!=" "){
         if (t1!="" & t2!="" ){
-          t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))  
+          t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
           t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))  # formated dataframe of t1 t2 and length list
           paresult=parSim(t11,t22,m,order)  # result of cost and record between two fixed boundries
           sd=sTOd(paresult[2])  # formated process of change
-          cost=cost+as.numeric(paresult[1])  
+          cost=cost+as.numeric(paresult[1])
           if (paresult[2] !=""){
             df=data.frame(speaker=s,
                           type=sd$type,
                           oldPosition=as.numeric(sd$oldPosition)+i-length(t1),
-                          newPosition=as.numeric(sd$newPosition)+i-length(t1), 
-                          oldChar=sd$oldChar, 
+                          newPosition=as.numeric(sd$newPosition)+i-length(t1),
+                          oldChar=sd$oldChar,
                           newChar=sd$newChar)
             record = rbind(record,df)
           }
@@ -136,8 +136,8 @@ calCost <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
             df=data.frame(speaker=s,
                           type="s",
                           oldPosition=i,
-                          newPosition=i, 
-                          oldChar=e1, 
+                          newPosition=i,
+                          oldChar=e1,
                           newChar=e2)
             record=rbind(record,df)
           }
@@ -151,8 +151,8 @@ calCost <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
               df=data.frame(speaker=s,
                             type=sd$type,
                             oldPosition=as.numeric(sd$oldPosition)+i-length(t1),
-                            newPosition=as.numeric(sd$newPosition)+i-length(t1), 
-                            oldChar=sd$oldChar, 
+                            newPosition=as.numeric(sd$newPosition)+i-length(t1),
+                            oldChar=sd$oldChar,
                             newChar=sd$newChar)
               record = rbind(record,df)
             }
@@ -175,8 +175,8 @@ calCost <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
         df=data.frame(speaker=s,
                       type=sd$type,
                       oldPosition=as.numeric(sd$oldPosition)+i-length(t1),
-                      newPosition=as.numeric(sd$newPosition)+i-length(t1), 
-                      oldChar=sd$oldChar, 
+                      newPosition=as.numeric(sd$newPosition)+i-length(t1),
+                      oldChar=sd$oldChar,
                       newChar=sd$newChar)
         record = rbind(record,df)
       }
@@ -196,21 +196,21 @@ parSim <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
                                           0,0,0,0,0,1,0,
                                           0,0,0,0,0,0,1), nrow=7),order){
   transCost=0.5
-  
+
   e1 =t1$e[1] # first element of t1
   e2 =t2$e[1] # first element of t2
-  
+
   subCost = m[which (order == e1),which (order == e2)]
-  
+
   s1=t1[2:nrow(t1),]  # sublist without first element
   s2=t2[2:nrow(t2),]
-  
+
   t=rbind(t2[2,],t2[1,],t2[3:nrow(t1),])  # switch list of first two element
-  
-  sdf=paste0("s","#",t1$n[1],"#",e1,"#",t2$n[1],"#",e2,"&")  # substitution process moduel 
-  tdf=paste0("t","#",t1$n[1],"#",e1,"#",t1$n[2],"#",t1$e[2],"#",t2$n[1],"#",e2,"#",t2$n[2],"#",t2$e[2],"&") # substitution process moduel 
-  
-  
+
+  sdf=paste0("s","#",t1$n[1],"#",e1,"#",t2$n[1],"#",e2,"&")  # substitution process moduel
+  tdf=paste0("t","#",t1$n[1],"#",e1,"#",t1$n[2],"#",t1$e[2],"#",t2$n[1],"#",e2,"#",t2$n[2],"#",t2$e[2],"&") # substitution process moduel
+
+
   if (nrow(t1)<=1){
     if (e1==e2){
       return (c(0,''))
@@ -258,12 +258,12 @@ parSim <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
       }
     }
   }
-}  # input two sub boundry list
+}  # input two sub boundary list
 # Without record
-# Calculate cost of two boundary lists, and confusion matrix m 
+# Calculate cost of two boundary lists, and confusion matrix m
 # ","  "." "?" "-" "+" ";" " "
 # + for --
-# ; for IU boundry without a punctuation
+# ; for IU boundary without a punctuation
 # in m is simscore subcost=(1-cost)/1
 # order= c(",", ".", "?", "-", "+", ";", " ")
 # m=matrix(data =c(1,0,0,0,0,0,0,
@@ -280,8 +280,8 @@ parSim <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
 #' @param l2 IU list1: a list of intonation units
 #' @param m similarity matrix to customize substitution cost
 #'
-#' @return cost 
-#' @export 
+#' @return cost
+#' @export
 #'
 #' @examples
 #' m=matrix(data =
@@ -304,8 +304,8 @@ calCost1<-function(l1,l2, m, order){
       return ("different length of elements")
     }
   }  # check element length
-  
-  cost=0  
+
+  cost=0
   t1=""
   t2=""  # temp for cost between two fixed boundries
   for (s in seq(1,length(l1))){  # for each speacker
@@ -369,7 +369,7 @@ parSim1<- function(t1,t2, m, order){
       }
     }
   }
-}  # input two sub boundry list
+}  # input two sub boundary list
 # without trans
 # record
 calCostNoTrans <- function(l1,l2, m, order){
@@ -383,8 +383,8 @@ calCostNoTrans <- function(l1,l2, m, order){
       return ("different length of elements")
     }
   }  # check element length
-  
-  cost=0  
+
+  cost=0
   for (s in seq(1,length(l1))){  # for each speacker
     for (i in seq(1,nchar(l1[s]))){  # for index of element in each list
       e1 =substring(l1[s],i,i)
@@ -409,8 +409,8 @@ calCostNoTrans1 <- function(l1,l2, m, order){
       return ("different length of elements")
     }
   }  # check element length
-  
-  cost=0  
+
+  cost=0
   for (s in seq(1,length(l1))){  # for each speacker
     for (i in seq(1,nchar(l1[s]))){  # for index of element in each list
       e1 =substring(l1[s],i,i)
@@ -423,7 +423,7 @@ calCostNoTrans1 <- function(l1,l2, m, order){
   return(cost)
 }
 
-# Transform the parsim String to dataframe.
+# Transform the parSim String to dataframe.
 sTOd <- function(s){
   slist=strsplit(s,"&")  # split the process string by & into steps
   result= data.frame()  # result dataframe of process
@@ -454,13 +454,13 @@ sTOd <- function(s){
     }
   }
   return(result)
-}  # input boundry cost result
+}  # input boundary cost result
 # Separate strings
 sepChar <- function(t1){
   return (strsplit(t1,''))
 }
 # Calculate bound number
-bdNum <- function(bd){  # input boundry list
+bdNum <- function(bd){  # input boundary list
   n=0  # number of boundries in a list
   l=0  # temperate variable for counting
   for (s in length(bd)){  # for each speacker
@@ -509,7 +509,7 @@ checkDiff <- function(l1,l2){
 #' @param trans choose to enable transposition action or not
 #'
 #' @return similarity score
-#' @export 
+#' @export
 #'
 #' @examples
 #' m=matrix(data =
@@ -534,7 +534,7 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
   if (dim(m)[1] != length(boundaries)+2){
     return ("Please keep the dimension of the matrix and boundary list the same")
   }
-  
+
   d1=reNA(d1)
   se1=sepSpeaker(d1)
   bdlist1=genBd(d1,se1,boundaries,noboundary)
@@ -542,10 +542,9 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
   d2=reNA(d2)
   se2=sepSpeaker(d2)
   bdlist2=genBd(d2,se2,boundaries,noboundary)
-  
+
   order = c(boundaries,noboundary,' ')
   if (trans == TRUE){
-    
     if (record == TRUE){
       cost=calCost(bdlist1,bdlist2,m,order)
       bdNumber=bdNum(bdlist1)
@@ -569,9 +568,9 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
       sim=simScore(bdNumber,cost)
       return(sim)
     }
-    
+
   }
-    
+
 }
 
 
