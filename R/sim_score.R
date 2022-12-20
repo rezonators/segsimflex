@@ -527,22 +527,25 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
   }  # check element length
 
   cost=0  # initialize the total cost
-  paresult = c("", "")
   for (s in seq(1,length(l1))){  # for each speacker
     currBlist1 = l1[[s]]
     currBlist2 = l2[[s]]
 
+    currBlistList1 = sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x))
+    currBlistList2 = sapply(1:nchar(currBlist2), function(x) substring(currBlist2, x, x))
     #First do all the straightforward substitutions
     posMatch = sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != " " & substring(currBlist2, x, x) != " ")
     substPos = posMatch & sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != substring(currBlist2, x, x))
+
 
     substs = data.frame(speaker = s,
                type = "s",
                oldPosition = which(substPos),
                newPosition = which(substPos),
-               oldChar= sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x))[substPos],
-               newChar= sapply(1:nchar(currBlist2), function(x) substring(currBlist2, x, x))[substPos])
+               oldChar= currBlistList1[substPos],
+               newChar= currBlistList2[substPos])
     record = rbind(record, substs)
+    cost = cost + sapply(1:nrow(substs), function(x) m[which(substs$oldChar[x] == order), which(substs$newChar[x] == order)]) %>% sum
 
     #Then get the areas between the places where both annotators put a boundary
     #transAreas = transitional areas between two places where both annotators
@@ -579,9 +582,9 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
           t1 = t1s[x]
           t2 = t2s[x]
           t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
-          t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))  # formated dataframe of t1 t2 and length list
-          paresult=parSim(t11,t22,m,order)  # result of cost and record between two fixed boundries
-          sd=sTOd(paresult[2])  # formated process of change
+          t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))  # formatted dataframe of t1 t2 and length list
+          paresult=parSim(t11,t22,m,order)  # result of cost and record between two fixed boundaries
+          sd=sTOd(paresult[2])  # formatted process of change
           cost=cost+as.numeric(paresult[1])
           if (paresult[2] !=""){
             df=data.frame()
@@ -618,14 +621,7 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
 #' @export
 #'
 #' @examples
-#' m=matrix(data =
-#' c(1,0,0,0,0,0,0,
-#' 0,1,0,0,0,0,0,
-#' 0,0,1,0,0,0,0,
-#' 0,0,0,1,0,0,0,
-#' 0,0,0,0,1,0,0,
-#' 0,0,0,0,0,1,0,
-#' 0,0,0,0,0,0,1), nrow=7)
+#' sim_Score(nccu_t049_1, nccu_t049_2, record = T)
 sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
                                                             0,1,0,0,0,0,0,
                                                             0,0,1,0,0,0,0,
