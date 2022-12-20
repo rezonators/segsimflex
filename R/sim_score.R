@@ -108,6 +108,7 @@ calCost <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
   cost=0  # initialize the total cost
   t1=""
   t2=""  # temp for cost between two fixed boundries
+  paresult = c("", "")
   for (s in seq(1,length(l1))){  # for each speacker
     for (i in seq(1,nchar(l1[s]))){  # for index of element in each list
       e1 =substring(l1[s],i,i)  # ith element in t1
@@ -497,6 +498,110 @@ checkDiff <- function(l1,l2){
   return(data.frame(d1,d2))
 }
 
+#calCost with report - alternative by Ryan
+calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
+                                           0,1,0,0,0,0,0,
+                                           0,0,1,0,0,0,0,
+                                           0,0,0,1,0,0,0,
+                                           0,0,0,0,1,0,0,
+                                           0,0,0,0,0,1,0,
+                                           0,0,0,0,0,0,1), nrow=7),order){
+  record=data.frame(speaker = integer(0),
+                    type = character(0),
+                    oldPosition = integer(0),
+                    newPosition = integer(0),
+                    oldChar = character(0),
+                    newChar = character(0))  # result dataframe of record process
+  subCost=1  # pre-set substitution cost
+  transCost=0.5  # pre-set transition cost of one space
+  m=1-m #Similaritie sto differences
+
+
+  if (length(l1)!=length(l2)){
+    stop ("different speakers try again")
+  }  # check speaker num
+  for (s in seq(1,length(l1))){
+    if (nchar(l1[s])!=nchar(l2[s])){
+      stop ("different length of elements")
+    }
+  }  # check element length
+
+  cost=0  # initialize the total cost
+  paresult = c("", "")
+  for (s in seq(1,length(l1))){  # for each speacker
+    currBlist1 = l1[[s]]
+    currBlist2 = l2[[s]]
+
+    #First do all the straightforward substitutions
+    posMatch = sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != " " & substring(currBlist2, x, x) != " ")
+    substPos = posMatch & sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != substring(currBlist2, x, x))
+
+    substs = data.frame(speaker = s,
+               type = "s",
+               oldPosition = which(substPos),
+               newPosition = which(substPos),
+               oldChar= sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x))[substPos],
+               newChar= sapply(1:nchar(currBlist2), function(x) substring(currBlist2, x, x))[substPos])
+    record = rbind(record, substs)
+
+    #Then get the areas between the places where both annotators put a boundary
+    #transAreas = transitional areas between two places where both annotators
+    #put a boundary
+    transAreas1 = list()
+    transAreas2 = list()
+    if(posMatch[1]) currItem = 0 else {
+      currItem = 1
+      transAreas1[[currItem]] = character(0)
+      transAreas2[[currItem]] = character(0)
+    }
+    for(i in 1:length(posMatch)){
+      if(posMatch[i]){
+        currItem = currItem + 1
+        transAreas1[[currItem]] = character(0)
+        transAreas2[[currItem]] = character(0)
+      } else {
+        transAreas1[[currItem]] = c(transAreas1[[currItem]], substring(currBlist1, i, i))
+        transAreas2[[currItem]] = c(transAreas2[[currItem]], substring(currBlist2, i, i))
+      }
+    }
+
+    spaceOnly = sapply(1:length(transAreas1), function(x) all(c(transAreas1[[x]], transAreas2[[x]]) == " "))
+    transAreas1 = transAreas1[!spaceOnly]
+    transAreas2 = transAreas2[!spaceOnly]
+
+    #Now go through each of those non-matching transitional areas
+    #And call parSim
+    if(length(transAreas1) > 0){
+      t1s = sapply(transAreas1, paste0, collapse = "")
+      t2s = sapply(transAreas2, paste0, collapse = "")
+
+      for(x in 1:length(t1s)){
+          t1 = t1s[x]
+          t2 = t2s[x]
+          t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
+          t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))  # formated dataframe of t1 t2 and length list
+          paresult=parSim(t11,t22,m,order)  # result of cost and record between two fixed boundries
+          sd=sTOd(paresult[2])  # formated process of change
+          cost=cost+as.numeric(paresult[1])
+          if (paresult[2] !=""){
+            df=data.frame()
+            record = add_row(record,
+                           speaker=s,
+                           type=sd$type,
+                           oldPosition=as.numeric(sd$oldPosition)+i-length(t1),
+                           newPosition=as.numeric(sd$newPosition)+i-length(t1),
+                           oldChar=sd$oldChar,
+                           newChar=sd$newChar)
+          }
+          t1=""
+          t2=""
+      }
+    }
+  }
+  return(c(cost,record))
+}  # input 2 genBd
+
+
 
 
 #' Similarity score calculation
@@ -537,7 +642,7 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
 
   # check length of prefixed boundaries and matrix
   if (dim(m)[1] != length(boundaries)+2){
-    return ("Please keep the dimension of the matrix and boundary list the same")
+    stop ("Please keep the dimension of the matrix and boundary list the same")
   }
 
   d1=reNA(d1) %>% reDS
@@ -549,9 +654,11 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
   bdlist2=genBd(d2,se2,boundaries,noboundary)
 
   order = c(boundaries,noboundary,' ')
+
   if (trans == TRUE){
     if (record == TRUE){
-      cost=calCost(bdlist1,bdlist2,m,order)
+      #cost=calCost(bdlist1,bdlist2,m,order)
+      cost=calCostV2(bdlist1,bdlist2,m,order)
       bdNumber=bdNum(bdlist1)
       sim=simScore(bdNumber,as.numeric(cost[1]))
       return(c(cost,sim))
