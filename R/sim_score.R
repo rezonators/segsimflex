@@ -474,7 +474,13 @@ bdNum <- function(bd){  # input boundary list
     l=0
   }
   return(n)
-}  # input genBd
+}
+
+bdNumV2 = function(bd){
+  bdlist1 %>% nchar %>% sum
+}
+
+# input genBd
 # calculate sim score
 simScore <- function(n, cost){
   return((n-cost)/(n))
@@ -643,11 +649,13 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
 
   d1=reNA(d1) %>% reDS
   se1=sepSpeaker(d1)
-  bdlist1=genBd(d1,se1,boundaries,noboundary)
+  #bdlist1=genBd(d1,se1,boundaries,noboundary)
+  bdlist1=genBdV2(d1,boundaries,noboundary)
 
   d2=reNA(d2) %>% reDS
   se2=sepSpeaker(d2)
-  bdlist2=genBd(d2,se2,boundaries,noboundary)
+  #bdlist2=genBd(d2,se2,boundaries,noboundary)
+  bdlist2=genBdV2(d2,boundaries,noboundary)
 
   order = c(boundaries,noboundary,' ')
 
@@ -655,24 +663,24 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
     if (record == TRUE){
       #cost=calCost(bdlist1,bdlist2,m,order)
       cost=calCostV2(bdlist1,bdlist2,m,order)
-      bdNumber=bdNum(bdlist1)
+      bdNumber=bdNumV2(bdlist1)
       sim=simScore(bdNumber,as.numeric(cost[1]))
       return(c(cost,sim))
     }else{
       cost=calCost1(bdlist1,bdlist2,m,order)
-      bdNumber=bdNum(bdlist1)
+      bdNumber=bdNumV2(bdlist1)
       sim=simScore(bdNumber,cost)
       return(sim)
     }
   } else{
     if (record == TRUE){
       cost=calCostNoTrans(bdlist1,bdlist2,m,order)
-      bdNumber=bdNum(bdlist1)
+      bdNumber=bdNumV2(bdlist1)
       sim=simScore(bdNumber,as.numeric(cost[1]))
       return(c(cost,sim))
     }else{
       cost=calCostNoTrans1(bdlist1,bdlist2,m,order)
-      bdNumber=bdNum(bdlist1)
+      bdNumber=bdNumV2(bdlist1)
       sim=simScore(bdNumber,cost)
       return(sim)
     }
@@ -681,6 +689,42 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
 
 }
 
+#For testing
+#cbind(anno2p %>% mutate(ntok = Utterance %>% strsplit(" ") %>% sapply(length)), d %>% mutate(ntok2 = Utterance %>% strsplit(" ") %>% sapply(length))  %>% select(-Turn, -Speaker) %>% dplyr::rename(Utt2 = Utterance)) %>% mutate(ntok - ntok2) %>% filter(ntok != ntok2) %>% View
+
+genBdV2 = function(d, boundaries, noboundary){
+  boundary_regex = paste0(" (", sapply(boundaries, function(b) paste0("\\", strsplit(b, ""), collapse = "")) %>% paste0(collapse = "|"), ")")
+  d = d %>% mutate(hasPunct = str_ends(Utterance, boundary_regex))
+  d = d %>% mutate(Utterance = case_when(
+    !hasPunct ~ paste0(Utterance, " ", noboundary),
+    T ~ Utterance
+  ))
+
+  boundary_regex_all = paste0(" (", sapply(c(boundaries, noboundary), function(b) paste0("\\", strsplit(b, ""), collapse = "")) %>% paste0(collapse = "|"), ")")
+
+  d = d %>%
+    mutate(Utterance = paste0(substring(Utterance, 1, nchar(Utterance) - 2), substring(Utterance, nchar(Utterance), nchar(Utterance))))
+
+  boundaries_perline = d %>%
+    mutate(spaces = str_extract_all(Utterance, " ") %>% sapply(function(x) paste0(x, collapse = "")),
+           punct = substring(Utterance, nchar(Utterance), nchar(Utterance))) %>%
+    mutate(bounds = paste0(spaces, punct)) %>%
+    mutate(nobounds = nchar(bounds)) %>%
+    mutate(nowords = strsplit(Utterance, " ") %>% sapply(length))
+
+  boundaries_perline %>% group_by(Speaker) %>%
+    summarise(space_num = nchar(spaces) %>% sum(),
+              punct_num = n(),
+              toks_num = strsplit(Utterance, " ") %>% sapply(length) %>% sum) %>%
+    mutate(total_num = space_num + punct_num)
+
+  bdlists = boundaries_perline %>% group_by(Speaker) %>% summarise(paste0(bounds, collapse = ""))
+  bdlists = bdlists %>% as.matrix %>% t
+  result = data.frame(bdlists)
+  colnames(result) = bdlists[1,]
+  result = result[-1,]
+  result
+}
 
 #' Two separate intonation unit segmentations from text 049 of the
 #' NCCU corpus.
