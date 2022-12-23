@@ -935,7 +935,7 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
       for(x in 1:length(t1s)){
         t1 = t1s[x]
         t2 = t2s[x]
-        print(paste0("t1:", t1, "|t2:", t2))
+        # print(paste0("t1:", t1, "|t2:", t2))
 
         t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
         t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
