@@ -484,8 +484,18 @@ parSim1<- function(t1,t2, m, order){
   }
 }
 
-transpose = function(string, pos1){
-  paste0(substring(string, 1, pos1-1), substring(string, pos1 + 1, pos1 + 1), substring(string, pos1, pos1), substring(string, pos1 + 2, nchar(string)))
+transpose = function(string, pos1, pos2 = NA){
+  if(is.na(pos2)) pos2 = pos1 + 1
+  if(pos2 < pos1){
+    pos2 = dummy
+    pos2 = pos1
+    pos1 = dummy
+  }
+  paste0(substring(string, 1, pos1-1),
+         substring(string, pos2, pos2),
+         substring(string, pos1 + 1, pos2 - 1),
+         substring(string, pos1, pos1),
+         substring(string, pos2 + 1, nchar(string)))
 }
 
 
@@ -579,6 +589,118 @@ parSim1V2 <- function(t1,t2, m, order, max = Inf, costSoFar = 0, cumulActions = 
             cumulActions = cumulActions + 1
             opCost = m[which (order == e1),which (order == e2)]
             result =(c(opCost, 0) + parSim1V2(s1,s2,m, order, max, costSoFar + opCost, cumulActions))
+          }
+        }
+      }
+    }
+    result
+    # if(!is.na(result)){
+    #   if(result < max){
+    #     result
+    #   } else NA
+    # } else NA
+  } else NA
+}  # input two sub boundary list
+
+parSim1V3 <- function(t1,t2, m, order, max = Inf, costSoFar = 0, cumulActions = 0){
+  if(costSoFar < max){
+    t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
+    t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
+    trailing_sp = min(t1_trailing_sp, t2_trailing_sp)
+
+    t1_leading_sp = str_extract_first(t1, " +") %>% nchar %>% replace_na(0)
+    t2_leading_sp = str_extract_first(t2, " +") %>% nchar %>% replace_na(0)
+    leading_sp = min(t1_leading_sp, t2_leading_sp)
+
+    t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
+    t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
+
+    # indent = rep(">", cumulActions) %>% paste0(collapse="")
+    # print(paste0(indent, "t1:'", t1, "'; t2:'", t2, "'; Max:", max, "; costSoFar:", costSoFar, "; cumulActions:", cumulActions))
+    transCost=0.5
+    e1 =substring(t1,1,1)
+    e2 =substring(t2,1,1)
+    f1 =substring(t1,nchar(t1),nchar(t1))
+    f2 =substring(t2,nchar(t2),nchar(t2))
+    s1=substring(t1,2,nchar(t1))
+    s2=substring(t2,2,nchar(t2))
+
+    t1_list = strsplit(t1, "")[[1]]
+    t2_list = strsplit(t2, "")[[1]]
+    matches = which(t1_list != " " & t2_list != " ")
+
+    t1_first_nonsp = str_locate(t1, "[^ ]")[1]
+    if(!is.na(t1_first_nonsp) & t1_first_nonsp > 1){
+      tback=transpose(t2, 1, t1_first_nonsp)
+    }
+    t2_first_nonsp = str_locate(t2, "[^ ]")[1]
+    if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1){
+      tfor=transpose(t2, 1, t2_first_nonsp)
+    }
+
+    if (nchar(t1)<=1){
+      if (e1==e2){
+        result = c(0, cumulActions)
+      }else{
+        cumulActions = cumulActions + 1
+        result = c(m[which (order == e1),which (order == e2)], cumulActions)
+      }
+    }else{
+      if (e1==e2){
+        result = parSim1V3(s1,s2,m, order, max, costSoFar, cumulActions)
+      }else{
+        if(length(matches) > 0){
+          opCost = m[which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
+          if(t1_list[matches[1]] != t2_list[matches[1]]) cumulActions = cumulActions + 1
+          t1_p1 = substring(t1, 1, matches[1] - 1)
+          t1_p2 = substring(t1, matches[1] + 1, nchar(t1))
+          t2_p1 = substring(t2, 1, matches[1] - 1)
+          t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
+          result =(c(opCost, -cumulActions) + #Because we're adding tgt two operations, there will be an extra copy of cumulActions, which we delete here
+                     parSim1V3(t1_p1,t2_p1,m, order, max, costSoFar + opCost, cumulActions) +
+                     parSim1V3(t1_p2,t2_p2,m, order, max, costSoFar + opCost, cumulActions))
+        } else if(e1!=" " & e2!=" "){
+          cumulActions = cumulActions + 1
+          opCost = m[which (order == e1),which (order == e2)]
+          result =(c(opCost, 0) + parSim1V3(s1,s2,m, order, max, costSoFar + opCost, cumulActions))
+        } else {
+          if (!is.na(t1_first_nonsp) & t1_first_nonsp > 1){ #Moving the first char of t2 back or substituting
+            #Old condition:  (substring(t2,1,1)!=" " & substring(t2,1,1)!=" ")
+            cumulActions = cumulActions + 1
+            option1 = c(m[which (order == e1),which (order == e2)], 0) +
+              parSim1V3(s1,s2,m,order, max,
+                        costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+            option2 = c(transCost * (t1_first_nonsp - 1), 0) +
+              parSim1V3(t1,tback,m, order,
+                        max = min(max, costSoFar + option1[1], na.rm = T),
+                        costSoFar + transCost * (t1_first_nonsp - 1), cumulActions)
+            if(any(is.na(option1)) & any(is.na(option2))){
+              result = c(Inf, cumulActions)
+            } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
+              result = option2
+            } else {
+              result = option1
+            }
+          } else if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1) { #Moving the first nonspace char of t2 front or substituting
+            cumulActions = cumulActions + 1
+            option1 = c(m[which (order == e1),which (order == e2)], 0) +
+              parSim1V3(s1,s2,m,order,max,
+                        costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+            option2 = c(transCost * (t2_first_nonsp - 1), 0) +
+              parSim1V3(t1,tfor,m,order,
+                        max = min(max, costSoFar + option1[1], na.rm = T),
+                        costSoFar + transCost * (t2_first_nonsp - 1), cumulActions)
+            if(any(is.na(option1)) & any(is.na(option2))){
+              result = c(Inf, cumulActions)
+            } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
+              result = option2
+            } else {
+              result = option1
+            }
+          } else {
+            cumulActions = cumulActions + 1
+            opCost = m[which (order == e1),which (order == e2)]
+            result =(c(opCost, 0) + parSim1V3(s1,s2,m, order, max, costSoFar + opCost, cumulActions))
           }
         }
       }
@@ -935,7 +1057,7 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
       for(x in 1:length(t1s)){
         t1 = t1s[x]
         t2 = t2s[x]
-        # print(paste0("t1:", t1, "|t2:", t2))
+        print(paste0("Speaker ", s, "/", length(l1), ", Segment ", x, "/", length(t1s), " - t1:", t1, "|t2:", t2))
 
         t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
         t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
@@ -961,7 +1083,7 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
             actions = actions + 1
           }
         } else {
-          parSimResult = parSim1V2(t1,t2,m,order)
+          parSimResult = parSim1V3(t1,t2,m,order)
           cost = cost + parSimResult[1]
           actions = actions + parSimResult[2]  # result of cost and record between two fixed boundaries
         }
