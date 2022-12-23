@@ -1019,7 +1019,9 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
     #First do all the straightforward substitutions
     posMatch = sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != " " & substring(currBlist2, x, x) != " ")
     substPos = posMatch & sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != substring(currBlist2, x, x))
-    cost = cost + sapply(which(substPos), function(x) m[which(currBlistList1[x] == order), which(currBlistList2[x] == order)]) %>% sum
+    if(length(which(substPos)) > 0){
+      cost = cost + sapply(which(substPos), function(x) m[which(currBlistList1[x] == order), which(currBlistList2[x] == order)]) %>% sum
+    }
     actions = actions + sum(posMatch)
 
     #Then get the areas between the places where both annotators put a boundary
@@ -1072,12 +1074,12 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
 
         t1_list = strsplit(t1, "")[[1]]
         t2_list = strsplit(t2, "")[[1]]
-        if(all(t1_list == "")){ #No need to consider transposing\
+        if(all(t1_list == " ")){ #No need to consider transposing\
           for(i in which(t2_list != " ")){
             cost = cost + m[which(order == " "), which(order == t2_list[i])]
             actions = actions + 1
           }
-        } else if(all(t2_list == "")){
+        } else if(all(t2_list == " ")){
           for(i in which(t1_list != " ")){
             cost = cost + m[which(order == t1_list[i]), which(order == " ")]
             actions = actions + 1
