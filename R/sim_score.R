@@ -209,8 +209,8 @@ parSim <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
 
   t=rbind(t2[2,],t2[1,],t2[3:nrow(t1),])  # switch list of first two element
 
-  sdf=paste0("s","#",t1$n[1],"#",e1,"#",t2$n[1],"#",e2,"&")  # substitution process moduel
-  tdf=paste0("t","#",t1$n[1],"#",e1,"#",t1$n[2],"#",t1$e[2],"#",t2$n[1],"#",e2,"#",t2$n[2],"#",t2$e[2],"&") # substitution process moduel
+  sdf=paste0("s","#",t1$n[1],"#",e1,"#",t2$n[1],"#",e2,"&")  # substitution process record
+  tdf=paste0("t","#",t1$n[1],"#",e1,"#",t1$n[2],"#",t1$e[2],"#",t2$n[1],"#",e2,"#",t2$n[2],"#",t2$e[2],"&") # substitution process record
 
 
   if (nrow(t1)<=1){
@@ -230,37 +230,124 @@ parSim <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
         )
       }else{
         if ((t2$e[2]!=" " & t2$e[1]==" ")){
-          if (subCost+as.numeric(parSim(s1,s2,m,order)[1])
-              <transCost+as.numeric(parSim(t1,t,m,order)[1])){
-            return(c(subCost+as.numeric(parSim(s1,s2,m,order)[1]),
-                     paste0(parSim(s1,s2,m,order)[2],sdf))
+          subCase = parSim(s1,s2,m,order)
+          transCase = parSim(t1,t,m,order)
+          if (subCost+as.numeric(subCase[1])
+              <transCost+as.numeric(transCase[1])){
+            return(c(subCost+as.numeric(subCase[1]),
+                     paste0(subCase[2],sdf))
             )
           }else{
-            return(c(transCost+as.numeric(parSim(t1,t,m,order)[1]),
-                     paste0(parSim(t1,t,m,order)[2],tdf))
-            )
-          }
-        }else{if((t2$e[2]==" " & t2$e[1]!=" ")){
-          if (subCost+as.numeric(parSim(s1,s2,m,order)[1])
-              <transCost+as.numeric(parSim(t1,t,m,order)[1])){
-            return(c(subCost+as.numeric(parSim(s1,s2,m,order)[1]),
-                     paste0(parSim(s1,s2,m,order)[2],sdf))
-            )
-          }else{
-            return(c(transCost+as.numeric(parSim(t1,t,m,order)[1]),
-                     paste0(parSim(t1,t,m,order)[2],tdf))
+            return(c(transCost+as.numeric(transCase),
+                     paste0(transCase[2],tdf))
             )
           }
         }else{
-          return(c(subCost+as.numeric(parSim(s1,s2,m,order)[1]),
-                   paste0(parSim(s1,s2,m,order)[2],sdf))
-          )
-        }
+          if((t2$e[2]==" " & t2$e[1]!=" ")){
+            subCase = parSim(s1,s2,m,order)
+            transCase = parSim(t1,t,m,order)
+            if (subCost+as.numeric(subCase[1])
+                <transCost+as.numeric(transCase[1])){
+              return(c(subCost+as.numeric(subCase[1]),
+                       paste0(subCase[2],sdf))
+              )
+            }else{
+              return(c(transCost+as.numeric(transCase[1]),
+                       paste0(transCase[2],tdf))
+              )
+            }
+          }else{
+            return(c(subCost+as.numeric(parSim(s1,s2,m,order)[1]),
+                     paste0(parSim(s1,s2,m,order)[2],sdf))
+            )
+          }
         }
       }
     }
   }
-}  # input two sub boundary list
+}
+
+
+
+parSimV2 <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
+                                          0,1,0,0,0,0,0,
+                                          0,0,1,0,0,0,0,
+                                          0,0,0,1,0,0,0,
+                                          0,0,0,0,1,0,0,
+                                          0,0,0,0,0,1,0,
+                                          0,0,0,0,0,0,1), nrow=7),order){
+  transCost=0.5
+
+  e1 =t1$e[1] # first element of t1
+  e2 =t2$e[1] # first element of t2
+
+  subCost = m[which (order == e1),which (order == e2)]
+
+  s1=t1[2:nrow(t1),]  # sublist without first element
+  s2=t2[2:nrow(t2),]
+
+  t=rbind(t2[2,],t2[1,],t2[3:nrow(t1),])  # switch list of first two element
+
+  sdf=paste0("s","#",t1$n[1],"#",e1,"#",t2$n[1],"#",e2,"&")  # substitution process record
+  tdf=paste0("t","#",t1$n[1],"#",e1,"#",t1$n[2],"#",t1$e[2],"#",t2$n[1],"#",e2,"#",t2$n[2],"#",t2$e[2],"&") # substitution process record
+
+
+  if (nrow(t1)<=1){
+    if (e1==e2){
+      return (c(0,''))
+    }else{
+      return (c(subCost,sdf))
+    }
+  }else{
+    if (e1==e2){
+      return(c(parSim(s1,s2,m,order)[1],
+               paste0(parSim(s1,s2,m,order)[2])))
+    }else{
+      if(e1!=" " & e2!=" "){
+        return(c(subCost+as.numeric(parSim(s1,s2,m,order)[1]),
+                 paste0(parSim(s1,s2,m,order)[2],sdf))
+        )
+      }else{
+        if ((t2$e[2]!=" " & t2$e[1]==" ")){
+          subCase = parSim(s1,s2,m,order)
+          transCase = parSim(t1,t,m,order)
+          if (subCost+as.numeric(subCase[1])
+              <transCost+as.numeric(transCase[1])){
+            return(c(subCost+as.numeric(subCase[1]),
+                     paste0(subCase[2],sdf))
+            )
+          }else{
+            return(c(transCost+as.numeric(transCase),
+                     paste0(transCase[2],tdf))
+            )
+          }
+        }else{
+          if((t2$e[2]==" " & t2$e[1]!=" ")){
+            subCase = parSim(s1,s2,m,order)
+            transCase = parSim(t1,t,m,order)
+            if (subCost+as.numeric(subCase[1])
+                <transCost+as.numeric(transCase[1])){
+              return(c(subCost+as.numeric(subCase[1]),
+                       paste0(subCase[2],sdf))
+              )
+            }else{
+              return(c(transCost+as.numeric(transCase[1]),
+                       paste0(transCase[2],tdf))
+              )
+            }
+          }else{
+            return(c(subCost+as.numeric(parSim(s1,s2,m,order)[1]),
+                     paste0(parSim(s1,s2,m,order)[2],sdf))
+            )
+          }
+        }
+      }
+    }
+  }
+}
+
+
+# input two sub boundary list
 # Without record
 # Calculate cost of two boundary lists, and confusion matrix m
 # ","  "." "?" "-" "+" ";" " "
@@ -316,6 +403,7 @@ calCost1<-function(l1,l2, m, order){
       e2 =substring(l2[s],i,i)
       if (e1==e2 & e1!=" " & e2!=" "){
         cost=cost+parSim1(t1,t2,m, order)
+        #cost=cost+parSim1V2(t1,t2,m, order)
         # record
         t1=""
         t2=""
@@ -324,6 +412,7 @@ calCost1<-function(l1,l2, m, order){
           cost=cost+m[which (order == e1),which (order == e2)]
           record=rbind(record,data.frame(old= e1, new = e2))
           cost=cost+parSim1(t1,t2,m, order)
+          #cost=cost+parSim1V2(t1,t2,m, order)
           # record
           t1=""
           t2=""
@@ -334,6 +423,7 @@ calCost1<-function(l1,l2, m, order){
       }
     }
     cost=cost+parSim1(t1,t2,m, order)
+    #cost=cost+parSim1V2(t1,t2,m, order)
     # record
     t1=""
     t2=""
@@ -371,7 +461,97 @@ parSim1<- function(t1,t2, m, order){
       }
     }
   }
+}
+
+transpose = function(string, pos1){
+  paste0(substring(string, 1, pos1-1), substring(string, pos1 + 1, pos1 + 1), substring(string, pos1, pos1), substring(string, pos1 + 2, nchar(string)))
+}
+
+
+parSim1V2 <- function(t1,t2, m, order, max = Inf, costSoFar = 0, indent = ""){
+  if(costSoFar < max){
+  indent = paste0(">",indent)
+  t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
+  t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
+  trailing_sp = min(t1_trailing_sp, t2_trailing_sp)
+
+  t1_leading_sp = str_extract_first(t1, " +") %>% nchar %>% replace_na(0)
+  t2_leading_sp = str_extract_first(t2, " +") %>% nchar %>% replace_na(0)
+  leading_sp = min(t1_leading_sp, t2_leading_sp)
+
+  t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
+  t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
+
+  #print(paste0(indent, "t1:", t1, "; t2:", t2, "; Max:", max, "; costSoFar:", costSoFar))
+  transCost=0.5
+  e1 =substring(t1,1,1)
+  e2 =substring(t2,1,1)
+  f1 =substring(t1,nchar(t1),nchar(t1))
+  f2 =substring(t2,nchar(t2),nchar(t2))
+  s1=substring(t1,2,nchar(t1))
+  s2=substring(t2,2,nchar(t2))
+
+  t1_list = strsplit(t1, "")[[1]]
+  t2_list = strsplit(t2, "")[[1]]
+  matches = which(t1_list != " " & t2_list != " ")
+
+  t=paste0(substring(t2,2,2),substring(t2,1,1),substring(t2,3,nchar(t2)))
+  t2_first_nonsp = str_locate(t2, "[^ ]")[1]
+  if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1){
+    tfor=transpose(t2, str_locate(t2, "[^ ]")[1] - 1)
+  }
+  if (nchar(t1)<=1){
+    if (e1==e2){
+      result = (0)
+    }else{
+      result = (m[which (order == e1),which (order == e2)])
+    }
+  }else{
+    if (e1==e2){
+      result =(parSim1V2(sfin1,sfin2,m, order, max, costSoFar, indent))
+    }else{
+      if(e1!=" " & e2!=" "){
+        opCost = m[which (order == e1),which (order == e2)]
+        result =(opCost+parSim1V2(s1,s2,m, order, max, costSoFar + opCost, indent))
+      } else if(length(matches) > 1){
+        opCost = m[which (order == t1[matches[1]]),which (order == t2[matches[1]])]
+        t1_p1 = substring(t1, 1, matches[1] - 1)
+        t1_p2 = substring(t1, matches[1] + 1, nchar(t1))
+        t2_p1 = substring(t2, 1, matches[1] - 1)
+        t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
+        result =(opCost+
+                   parSim1V2(t1_p1,t1_p2,m, order, max, costSoFar + opCost, indent)+
+                   parSim1V2(t2_p1,t2_p2,m, order, max, costSoFar + opCost, indent))
+      } else{
+        if ((substring(t2,2,2)!=" " & substring(t2,1,1)==" ") |
+            (substring(t2,2,2)==" " & substring(t2,1,1)!=" ")){
+          option1 = m[which (order == e1),which (order == e2)]+parSim1V2(s1,s2,m,order, max, costSoFar + m[which (order == e1),which (order == e2)], indent)
+          option2 = transCost+parSim1V2(t1,t,m, order, max = min(max, option1, na.rm = T), costSoFar + transCost, indent)
+          result = suppressWarnings(min(option1, option2, na.rm = T))
+         } else if (!is.na(t2_first_nonsp) & t2_first_nonsp > 1){
+           option1 = m[which (order == e1),which (order == e2)] +
+             parSim1V2(s1,s2,m,order, max, costSoFar + m[which (order == e1),which (order == e2)], indent)
+           option2 = transCost +
+             parSim1V2(t1,tfor,m,order, max = min(max, option1, na.rm = T), costSoFar + transCost, indent)
+           result =suppressWarnings(min(option1, option2, na.rm = T))
+        }else{
+          opCost = m[which (order == e1),which (order == e2)]
+          result =(opCost+parSim1V2(s1,s2,m, order, max, costSoFar + opCost, indent))
+        }
+      }
+    }
+  }
+  result
+  # if(!is.na(result)){
+  #   if(result < max){
+  #     result
+  #   } else NA
+  # } else NA
+  } else NA
 }  # input two sub boundary list
+
+
+# input two sub boundary list
 # without trans
 # record
 calCostNoTrans <- function(l1,l2, m, order){
@@ -584,12 +764,45 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
       t1s = sapply(transAreas1, paste0, collapse = "")
       t2s = sapply(transAreas2, paste0, collapse = "")
 
+
       for(x in 1:length(t1s)){
           t1 = t1s[x]
           t2 = t2s[x]
+
+          t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
+          t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
+          trailing_sp = min(t1_trailing_sp, t2_trailing_sp)
+
+          t1_leading_sp = str_extract_first(t1, " +") %>% nchar %>% replace_na(0)
+          t2_leading_sp = str_extract_first(t2, " +") %>% nchar %>% replace_na(0)
+          leading_sp = min(t1_leading_sp, t2_leading_sp)
+
+          t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
+          t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
+
           t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
           t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))  # formatted dataframe of t1 t2 and length list
-          paresult=parSim(t11,t22,m,order)  # result of cost and record between two fixed boundaries
+
+          if(all(strsplit(t1, " ")[[1]] == "")){ #No need to consider transposing\
+            currCost = 0
+            currRecord = ""
+            for(i in which(t22$e != " ")){
+              currCost = currCost + m[which(order == " "), which(order == t22$e[i])]
+              currRecord = paste0(currRecord, "s#", t22$n[i], "# #", t22$n[i], "#", t22$e[i], "&")
+            }
+            paresult = c(as.character(currCost), currRecord)
+          } else if(all(strsplit(t2, " ")[[1]] == "")){
+            currCost = 0
+            currRecord = ""
+            for(i in which(t11$e != " ")){
+              currCost = currCost + m[which(order == t11$e[i]), which(order == " ")]
+              currRecord = paste0(currRecord, "s#", t11$n[i], "#", t11$e[i], "#", t11$n[i], "#", " &")
+            }
+            paresult = c(as.character(currCost), currRecord)
+          } else {
+            paresult=parSim(t11,t22,m,order)  # result of cost and record between two fixed boundaries
+          }
+
           sd=sTOd(paresult[2])  # formatted process of change
           cost=cost+as.numeric(paresult[1])
           if (paresult[2] !=""){
@@ -608,6 +821,105 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
     }
   }
   return(c(cost,record))
+}  # input 2 genBd
+
+#calCost without report - alternative by Ryan
+calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
+                                             0,1,0,0,0,0,0,
+                                             0,0,1,0,0,0,0,
+                                             0,0,0,1,0,0,0,
+                                             0,0,0,0,1,0,0,
+                                             0,0,0,0,0,1,0,
+                                             0,0,0,0,0,0,1), nrow=7),order){
+  subCost=1  # pre-set substitution cost
+  transCost=0.5  # pre-set transition cost of one space
+  m=1-m #Similaritie sto differences
+
+  if (length(l1)!=length(l2)){
+    stop ("different speakers try again")
+  }  # check speaker num
+  for (s in seq(1,length(l1))){
+    if (nchar(l1[s])!=nchar(l2[s])){
+      stop ("different length of elements")
+    }
+  }  # check element length
+
+  cost=0  # initialize the total cost
+  for (s in seq(1,length(l1))){  # for each speacker
+    currBlist1 = l1[[s]]
+    currBlist2 = l2[[s]]
+
+    currBlistList1 = sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x))
+    currBlistList2 = sapply(1:nchar(currBlist2), function(x) substring(currBlist2, x, x))
+    #First do all the straightforward substitutions
+    posMatch = sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != " " & substring(currBlist2, x, x) != " ")
+    substPos = posMatch & sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != substring(currBlist2, x, x))
+    cost = cost + sapply(which(substPos), function(x) m[which(currBlistList1[x] == order), which(currBlistList2[x] == order)]) %>% sum
+
+    #Then get the areas between the places where both annotators put a boundary
+    #transAreas = transitional areas between two places where both annotators
+    #put a boundary
+    transAreas1 = list()
+    transAreas2 = list()
+    if(posMatch[1]) currItem = 0 else {
+      currItem = 1
+      transAreas1[[currItem]] = character(0)
+      transAreas2[[currItem]] = character(0)
+    }
+    for(i in 1:length(posMatch)){
+      if(posMatch[i]){
+        currItem = currItem + 1
+        transAreas1[[currItem]] = character(0)
+        transAreas2[[currItem]] = character(0)
+      } else {
+        transAreas1[[currItem]] = c(transAreas1[[currItem]], substring(currBlist1, i, i))
+        transAreas2[[currItem]] = c(transAreas2[[currItem]], substring(currBlist2, i, i))
+      }
+    }
+
+    spaceOnly = sapply(1:length(transAreas1), function(x) all(c(transAreas1[[x]], transAreas2[[x]]) == " "))
+    transAreas1 = transAreas1[!spaceOnly]
+    transAreas2 = transAreas2[!spaceOnly]
+
+    #Now go through each of those non-matching transitional areas
+    #And call parSim
+    if(length(transAreas1) > 0){
+      t1s = sapply(transAreas1, paste0, collapse = "")
+      t2s = sapply(transAreas2, paste0, collapse = "")
+
+
+      for(x in 1:length(t1s)){
+        t1 = t1s[x]
+        t2 = t2s[x]
+
+        t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
+        t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
+        trailing_sp = min(t1_trailing_sp, t2_trailing_sp)
+
+        t1_leading_sp = str_extract_first(t1, " +") %>% nchar %>% replace_na(0)
+        t2_leading_sp = str_extract_first(t2, " +") %>% nchar %>% replace_na(0)
+        leading_sp = min(t1_leading_sp, t2_leading_sp)
+
+        t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
+        t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
+
+        t1_list = strsplit(t1, "")[[1]]
+        t2_list = strsplit(t2, "")[[1]]
+        if(all(t1_list == "")){ #No need to consider transposing\
+          for(i in which(t2_list != " ")){
+            cost = cost + m[which(order == " "), which(order == t2_list[i])]
+          }
+        } else if(all(t2_list == "")){
+          for(i in which(t1_list != " ")){
+            cost = cost + m[which(order == t1_list[i]), which(order == " ")]
+          }
+        } else {
+          cost = cost + parSim1V2(t1,t2,m,order)  # result of cost and record between two fixed boundaries
+        }
+      }
+    }
+  }
+  return(cost)
 }  # input 2 genBd
 
 
@@ -661,13 +973,13 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
 
   if (trans == TRUE){
     if (record == TRUE){
-      #cost=calCost(bdlist1,bdlist2,m,order)
-      cost=calCostV2(bdlist1,bdlist2,m,order)
+      cost=calCost(bdlist1,bdlist2,m,order)
+      #cost=calCostV2(bdlist1,bdlist2,m,order)
       bdNumber=bdNumV2(bdlist1)
       sim=simScore(bdNumber,as.numeric(cost[1]))
       return(c(cost,sim))
     }else{
-      cost=calCost1(bdlist1,bdlist2,m,order)
+      cost=calCost1V2(bdlist1,bdlist2,m,order)
       bdNumber=bdNumV2(bdlist1)
       sim=simScore(bdNumber,cost)
       return(sim)
@@ -712,11 +1024,11 @@ genBdV2 = function(d, boundaries, noboundary){
     mutate(nobounds = nchar(bounds)) %>%
     mutate(nowords = strsplit(Utterance, " ") %>% sapply(length))
 
-  boundaries_perline %>% group_by(Speaker) %>%
-    summarise(space_num = nchar(spaces) %>% sum(),
-              punct_num = n(),
-              toks_num = strsplit(Utterance, " ") %>% sapply(length) %>% sum) %>%
-    mutate(total_num = space_num + punct_num)
+  # boundaries_perline %>% group_by(Speaker) %>%
+  #   summarise(space_num = nchar(spaces) %>% sum(),
+  #             punct_num = n(),
+  #             toks_num = strsplit(Utterance, " ") %>% sapply(length) %>% sum) %>%
+  #   mutate(total_num = space_num + punct_num)
 
   bdlists = boundaries_perline %>% group_by(Speaker) %>% summarise(paste0(bounds, collapse = ""))
   bdlists = bdlists %>% as.matrix %>% t
