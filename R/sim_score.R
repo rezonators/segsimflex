@@ -5,6 +5,27 @@ library(tidyverse)
 library(dplyr)
 ## only need to change file name in line 406 407
 
+#Extract something at the end
+str_extract_last = function(strings, regex){
+  contains = str_ends(strings, regex)
+  locs = str_locate_all(strings, regex)
+  sapply(1:length(strings), function(i){
+    curr_locs = locs[[i]]
+    if(nrow(curr_locs) > 0 & contains[i]) substring(strings[i], curr_locs[nrow(curr_locs), 1], curr_locs[nrow(curr_locs), 2])
+    else NA
+  })
+}
+
+
+
+str_extract_first = function(strings, regex){
+  contains = str_starts(strings, regex)
+  locs = str_locate(strings, regex)
+  sapply(1:length(strings), function(i){
+    curr_locs = locs[i,]
+    if(contains[i]) substring(strings[i], curr_locs[1], curr_locs[2]) else NA
+  })
+}
 
 # Replace -- to +
 # can only deal with single notes
@@ -468,85 +489,106 @@ transpose = function(string, pos1){
 }
 
 
-parSim1V2 <- function(t1,t2, m, order, max = Inf, costSoFar = 0, indent = ""){
+parSim1V2 <- function(t1,t2, m, order, max = Inf, costSoFar = 0, cumulActions = 0){
   if(costSoFar < max){
-  indent = paste0(">",indent)
-  t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
-  t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
-  trailing_sp = min(t1_trailing_sp, t2_trailing_sp)
+    t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
+    t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
+    trailing_sp = min(t1_trailing_sp, t2_trailing_sp)
 
-  t1_leading_sp = str_extract_first(t1, " +") %>% nchar %>% replace_na(0)
-  t2_leading_sp = str_extract_first(t2, " +") %>% nchar %>% replace_na(0)
-  leading_sp = min(t1_leading_sp, t2_leading_sp)
+    t1_leading_sp = str_extract_first(t1, " +") %>% nchar %>% replace_na(0)
+    t2_leading_sp = str_extract_first(t2, " +") %>% nchar %>% replace_na(0)
+    leading_sp = min(t1_leading_sp, t2_leading_sp)
 
-  t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
-  t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
+    t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
+    t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
 
-  #print(paste0(indent, "t1:", t1, "; t2:", t2, "; Max:", max, "; costSoFar:", costSoFar))
-  transCost=0.5
-  e1 =substring(t1,1,1)
-  e2 =substring(t2,1,1)
-  f1 =substring(t1,nchar(t1),nchar(t1))
-  f2 =substring(t2,nchar(t2),nchar(t2))
-  s1=substring(t1,2,nchar(t1))
-  s2=substring(t2,2,nchar(t2))
+    # indent = rep(">", cumulActions) %>% paste0(collapse="")
+    # print(paste0(indent, "t1:'", t1, "'; t2:'", t2, "'; Max:", max, "; costSoFar:", costSoFar, "; cumulActions:", cumulActions))
+    transCost=0.5
+    e1 =substring(t1,1,1)
+    e2 =substring(t2,1,1)
+    f1 =substring(t1,nchar(t1),nchar(t1))
+    f2 =substring(t2,nchar(t2),nchar(t2))
+    s1=substring(t1,2,nchar(t1))
+    s2=substring(t2,2,nchar(t2))
 
-  t1_list = strsplit(t1, "")[[1]]
-  t2_list = strsplit(t2, "")[[1]]
-  matches = which(t1_list != " " & t2_list != " ")
+    t1_list = strsplit(t1, "")[[1]]
+    t2_list = strsplit(t2, "")[[1]]
+    matches = which(t1_list != " " & t2_list != " ")
 
-  t=paste0(substring(t2,2,2),substring(t2,1,1),substring(t2,3,nchar(t2)))
-  t2_first_nonsp = str_locate(t2, "[^ ]")[1]
-  if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1){
-    tfor=transpose(t2, str_locate(t2, "[^ ]")[1] - 1)
-  }
-  if (nchar(t1)<=1){
-    if (e1==e2){
-      result = (0)
-    }else{
-      result = (m[which (order == e1),which (order == e2)])
+    t=paste0(substring(t2,2,2),substring(t2,1,1),substring(t2,3,nchar(t2)))
+    t2_first_nonsp = str_locate(t2, "[^ ]")[1]
+    if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1){
+      tfor=transpose(t2, str_locate(t2, "[^ ]")[1] - 1)
     }
-  }else{
-    if (e1==e2){
-      result =(parSim1V2(sfin1,sfin2,m, order, max, costSoFar, indent))
+
+    if (nchar(t1)<=1){
+      if (e1==e2){
+        result = c(0, cumulActions)
+      }else{
+        cumulActions = cumulActions + 1
+        result = c(m[which (order == e1),which (order == e2)], cumulActions)
+      }
     }else{
-      if(e1!=" " & e2!=" "){
-        opCost = m[which (order == e1),which (order == e2)]
-        result =(opCost+parSim1V2(s1,s2,m, order, max, costSoFar + opCost, indent))
-      } else if(length(matches) > 1){
-        opCost = m[which (order == t1[matches[1]]),which (order == t2[matches[1]])]
-        t1_p1 = substring(t1, 1, matches[1] - 1)
-        t1_p2 = substring(t1, matches[1] + 1, nchar(t1))
-        t2_p1 = substring(t2, 1, matches[1] - 1)
-        t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
-        result =(opCost+
-                   parSim1V2(t1_p1,t1_p2,m, order, max, costSoFar + opCost, indent)+
-                   parSim1V2(t2_p1,t2_p2,m, order, max, costSoFar + opCost, indent))
-      } else{
-        if ((substring(t2,2,2)!=" " & substring(t2,1,1)==" ") |
-            (substring(t2,2,2)==" " & substring(t2,1,1)!=" ")){
-          option1 = m[which (order == e1),which (order == e2)]+parSim1V2(s1,s2,m,order, max, costSoFar + m[which (order == e1),which (order == e2)], indent)
-          option2 = transCost+parSim1V2(t1,t,m, order, max = min(max, option1, na.rm = T), costSoFar + transCost, indent)
-          result = suppressWarnings(min(option1, option2, na.rm = T))
-         } else if (!is.na(t2_first_nonsp) & t2_first_nonsp > 1){
-           option1 = m[which (order == e1),which (order == e2)] +
-             parSim1V2(s1,s2,m,order, max, costSoFar + m[which (order == e1),which (order == e2)], indent)
-           option2 = transCost +
-             parSim1V2(t1,tfor,m,order, max = min(max, option1, na.rm = T), costSoFar + transCost, indent)
-           result =suppressWarnings(min(option1, option2, na.rm = T))
-        }else{
+      if (e1==e2){
+        result = parSim1V2(s1,s2,m, order, max, costSoFar, cumulActions)
+      }else{
+         if(length(matches) > 0){
+          opCost = m[which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
+          if(t1_list[matches[1]] != t2_list[matches[1]]) cumulActions = cumulActions + 1
+          t1_p1 = substring(t1, 1, matches[1] - 1)
+          t1_p2 = substring(t1, matches[1] + 1, nchar(t1))
+          t2_p1 = substring(t2, 1, matches[1] - 1)
+          t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
+          result =(c(opCost, -cumulActions) + #Because we're adding tgt two operations, there will be an extra copy of cumulActions, which we delete here
+                     parSim1V2(t1_p1,t2_p1,m, order, max, costSoFar + opCost, cumulActions) +
+                     parSim1V2(t1_p2,t2_p2,m, order, max, costSoFar + opCost, cumulActions))
+        } else if(e1!=" " & e2!=" "){
+          cumulActions = cumulActions + 1
           opCost = m[which (order == e1),which (order == e2)]
-          result =(opCost+parSim1V2(s1,s2,m, order, max, costSoFar + opCost, indent))
+          result =(c(opCost, 0) + parSim1V2(s1,s2,m, order, max, costSoFar + opCost, cumulActions))
+        } else {
+          if ((substring(t2,2,2)!=" " & substring(t2,1,1)==" ") |
+              (substring(t2,2,2)==" " & substring(t2,1,1)!=" ")){
+            cumulActions = cumulActions + 1
+            option1 = c(m[which (order == e1),which (order == e2)], 0) +
+              parSim1V2(s1,s2,m,order, max, costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+            option2 = c(transCost, 0) +
+              parSim1V2(t1,t,m, order, max = min(max, costSoFar + option1[1], na.rm = T), costSoFar + transCost, cumulActions)
+            if(any(is.na(option1)) & any(is.na(option2))){
+              result = c(Inf, cumulActions)
+            } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
+             result = option2
+            } else {
+             result = option1
+            }
+          } else if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1) {
+             cumulActions = cumulActions + 1
+             option1 = c(m[which (order == e1),which (order == e2)], 0) +
+               parSim1V2(s1,s2,m,order, max, costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+             option2 = c(transCost, 0) +
+               parSim1V2(t1,tfor,m,order, max = min(max, costSoFar + option1[1], na.rm = T), costSoFar + transCost, cumulActions)
+             if(any(is.na(option1)) & any(is.na(option2))){
+               result = c(Inf, cumulActions)
+             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
+               result = option2
+             } else {
+               result = option1
+             }
+          } else {
+            cumulActions = cumulActions + 1
+            opCost = m[which (order == e1),which (order == e2)]
+            result =(c(opCost, 0) + parSim1V2(s1,s2,m, order, max, costSoFar + opCost, cumulActions))
+          }
         }
       }
     }
-  }
-  result
-  # if(!is.na(result)){
-  #   if(result < max){
-  #     result
-  #   } else NA
-  # } else NA
+    result
+    # if(!is.na(result)){
+    #   if(result < max){
+    #     result
+    #   } else NA
+    # } else NA
   } else NA
 }  # input two sub boundary list
 
@@ -845,6 +887,7 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
   }  # check element length
 
   cost=0  # initialize the total cost
+  actions = 0
   for (s in seq(1,length(l1))){  # for each speacker
     currBlist1 = l1[[s]]
     currBlist2 = l2[[s]]
@@ -855,6 +898,7 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
     posMatch = sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != " " & substring(currBlist2, x, x) != " ")
     substPos = posMatch & sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != substring(currBlist2, x, x))
     cost = cost + sapply(which(substPos), function(x) m[which(currBlistList1[x] == order), which(currBlistList2[x] == order)]) %>% sum
+    actions = actions + sum(posMatch)
 
     #Then get the areas between the places where both annotators put a boundary
     #transAreas = transitional areas between two places where both annotators
@@ -891,6 +935,7 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
       for(x in 1:length(t1s)){
         t1 = t1s[x]
         t2 = t2s[x]
+        print(paste0("t1:", t1, "|t2:", t2))
 
         t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
         t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
@@ -908,18 +953,22 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
         if(all(t1_list == "")){ #No need to consider transposing\
           for(i in which(t2_list != " ")){
             cost = cost + m[which(order == " "), which(order == t2_list[i])]
+            actions = actions + 1
           }
         } else if(all(t2_list == "")){
           for(i in which(t1_list != " ")){
             cost = cost + m[which(order == t1_list[i]), which(order == " ")]
+            actions = actions + 1
           }
         } else {
-          cost = cost + parSim1V2(t1,t2,m,order)  # result of cost and record between two fixed boundaries
+          parSimResult = parSim1V2(t1,t2,m,order)
+          cost = cost + parSimResult[1]
+          actions = actions + parSimResult[2]  # result of cost and record between two fixed boundaries
         }
       }
     }
   }
-  return(cost)
+  return(c(cost, actions))
 }  # input 2 genBd
 
 
@@ -979,10 +1028,11 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
       sim=simScore(bdNumber,as.numeric(cost[1]))
       return(c(cost,sim))
     }else{
-      cost=calCost1V2(bdlist1,bdlist2,m,order)
+      cost=calCost1V2(bdlist1,bdlist2,m,order) #returns cost + no. of ops
       bdNumber=bdNumV2(bdlist1)
-      sim=simScore(bdNumber,cost)
-      return(sim)
+      sim_N =simScore(bdNumber,cost[1])
+      sim_B =simScore(cost[2],cost[1])
+      return(c(sim_N,sim_B))
     }
   } else{
     if (record == TRUE){
