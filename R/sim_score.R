@@ -821,7 +821,7 @@ bdNum <- function(bd){  # input boundary list
 }
 
 bdNumV2 = function(bd){
-  bdlist1 %>% nchar %>% sum
+  bd %>% nchar %>% sum
 }
 
 # input genBd
