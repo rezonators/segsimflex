@@ -291,12 +291,12 @@ parSim <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
 
 
 parSimV2 <- function(t1,t2,m=matrix(data =c(1,0,0,0,0,0,0,
-                                          0,1,0,0,0,0,0,
-                                          0,0,1,0,0,0,0,
-                                          0,0,0,1,0,0,0,
-                                          0,0,0,0,1,0,0,
-                                          0,0,0,0,0,1,0,
-                                          0,0,0,0,0,0,1), nrow=7),order){
+                                            0,1,0,0,0,0,0,
+                                            0,0,1,0,0,0,0,
+                                            0,0,0,1,0,0,0,
+                                            0,0,0,0,1,0,0,
+                                            0,0,0,0,0,1,0,
+                                            0,0,0,0,0,0,1), nrow=7),order){
   transCost=0.5
 
   e1 =t1$e[1] # first element of t1
@@ -543,7 +543,7 @@ parSim1V2 <- function(t1,t2, m, order, max = Inf, costSoFar = 0, cumulActions = 
       if (e1==e2){
         result = parSim1V2(s1,s2,m, order, max, costSoFar, cumulActions)
       }else{
-         if(length(matches) > 0){
+        if(length(matches) > 0){
           opCost = m[which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
           if(t1_list[matches[1]] != t2_list[matches[1]]) cumulActions = cumulActions + 1
           t1_p1 = substring(t1, 1, matches[1] - 1)
@@ -568,23 +568,23 @@ parSim1V2 <- function(t1,t2, m, order, max = Inf, costSoFar = 0, cumulActions = 
             if(any(is.na(option1)) & any(is.na(option2))){
               result = c(Inf, cumulActions)
             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
-             result = option2
+              result = option2
             } else {
-             result = option1
+              result = option1
             }
           } else if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1) {
-             cumulActions = cumulActions + 1
-             option1 = c(m[which (order == e1),which (order == e2)], 0) +
-               parSim1V2(s1,s2,m,order, max, costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
-             option2 = c(transCost, 0) +
-               parSim1V2(t1,tfor,m,order, max = min(max, costSoFar + option1[1], na.rm = T), costSoFar + transCost, cumulActions)
-             if(any(is.na(option1)) & any(is.na(option2))){
-               result = c(Inf, cumulActions)
-             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
-               result = option2
-             } else {
-               result = option1
-             }
+            cumulActions = cumulActions + 1
+            option1 = c(m[which (order == e1),which (order == e2)], 0) +
+              parSim1V2(s1,s2,m,order, max, costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+            option2 = c(transCost, 0) +
+              parSim1V2(t1,tfor,m,order, max = min(max, costSoFar + option1[1], na.rm = T), costSoFar + transCost, cumulActions)
+            if(any(is.na(option1)) & any(is.na(option2))){
+              result = c(Inf, cumulActions)
+            } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
+              result = option2
+            } else {
+              result = option1
+            }
           } else {
             cumulActions = cumulActions + 1
             opCost = m[which (order == e1),which (order == e2)]
@@ -778,17 +778,17 @@ sTOd <- function(s){
     a=slist2[[1]][1]  # type of the step :s or t
     if (a=="s"){
       result=rbind(result, data.frame(type="s",
-                              oldPosition=slist2[[1]][2],
-                              newPosition=slist2[[1]][4],
-                              oldChar=slist2[[1]][3],
-                              newChar=slist2[[1]][5]))
+                                      oldPosition=slist2[[1]][2],
+                                      newPosition=slist2[[1]][4],
+                                      oldChar=slist2[[1]][3],
+                                      newChar=slist2[[1]][5]))
     }else{
       if (substring(i,3,3)==" "){
         result=rbind(result, data.frame(type="t",
-                                 oldPosition=slist2[[1]][4],
-                                 newPosition=slist2[[1]][2],
-                                 oldChar=slist2[[1]][5],
-                                 newChar=slist2[[1]][5]))
+                                        oldPosition=slist2[[1]][4],
+                                        newPosition=slist2[[1]][2],
+                                        oldChar=slist2[[1]][5],
+                                        newChar=slist2[[1]][5]))
       }else{
         result=rbind(result, data.frame(type="t",
                                         oldPosition=slist2[[1]][2],
@@ -850,12 +850,12 @@ checkDiff <- function(l1,l2){
 
 #calCost with report - alternative by Ryan
 calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
-                                           0,1,0,0,0,0,0,
-                                           0,0,1,0,0,0,0,
-                                           0,0,0,1,0,0,0,
-                                           0,0,0,0,1,0,0,
-                                           0,0,0,0,0,1,0,
-                                           0,0,0,0,0,0,1), nrow=7),order){
+                                             0,1,0,0,0,0,0,
+                                             0,0,1,0,0,0,0,
+                                             0,0,0,1,0,0,0,
+                                             0,0,0,0,1,0,0,
+                                             0,0,0,0,0,1,0,
+                                             0,0,0,0,0,0,1), nrow=7),order){
   record=data.frame(speaker = integer(0),
                     type = character(0),
                     oldPosition = integer(0),
@@ -889,11 +889,11 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
 
 
     substs = data.frame(speaker = s,
-               type = "s",
-               oldPosition = which(substPos),
-               newPosition = which(substPos),
-               oldChar= currBlistList1[substPos],
-               newChar= currBlistList2[substPos])
+                        type = "s",
+                        oldPosition = which(substPos),
+                        newPosition = which(substPos),
+                        oldChar= currBlistList1[substPos],
+                        newChar= currBlistList2[substPos])
     record = rbind(record, substs)
     cost = cost + sapply(1:nrow(substs), function(x) m[which(substs$oldChar[x] == order), which(substs$newChar[x] == order)]) %>% sum
 
@@ -930,57 +930,57 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
 
 
       for(x in 1:length(t1s)){
-          t1 = t1s[x]
-          t2 = t2s[x]
+        t1 = t1s[x]
+        t2 = t2s[x]
 
-          t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
-          t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
-          trailing_sp = min(t1_trailing_sp, t2_trailing_sp)
+        t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
+        t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
+        trailing_sp = min(t1_trailing_sp, t2_trailing_sp)
 
-          t1_leading_sp = str_extract_first(t1, " +") %>% nchar %>% replace_na(0)
-          t2_leading_sp = str_extract_first(t2, " +") %>% nchar %>% replace_na(0)
-          leading_sp = min(t1_leading_sp, t2_leading_sp)
+        t1_leading_sp = str_extract_first(t1, " +") %>% nchar %>% replace_na(0)
+        t2_leading_sp = str_extract_first(t2, " +") %>% nchar %>% replace_na(0)
+        leading_sp = min(t1_leading_sp, t2_leading_sp)
 
-          t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
-          t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
+        t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
+        t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
 
-          t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
-          t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))  # formatted dataframe of t1 t2 and length list
+        t11=data.frame(n=seq(nchar(t1)),e=c(sepChar(t1)[[1]]))
+        t22=data.frame(n=seq(nchar(t2)),e=c(sepChar(t2)[[1]]))  # formatted dataframe of t1 t2 and length list
 
-          if(all(strsplit(t1, " ")[[1]] == "")){ #No need to consider transposing\
-            currCost = 0
-            currRecord = ""
-            for(i in which(t22$e != " ")){
-              currCost = currCost + m[which(order == " "), which(order == t22$e[i])]
-              currRecord = paste0(currRecord, "s#", t22$n[i], "# #", t22$n[i], "#", t22$e[i], "&")
-            }
-            paresult = c(as.character(currCost), currRecord)
-          } else if(all(strsplit(t2, " ")[[1]] == "")){
-            currCost = 0
-            currRecord = ""
-            for(i in which(t11$e != " ")){
-              currCost = currCost + m[which(order == t11$e[i]), which(order == " ")]
-              currRecord = paste0(currRecord, "s#", t11$n[i], "#", t11$e[i], "#", t11$n[i], "#", " &")
-            }
-            paresult = c(as.character(currCost), currRecord)
-          } else {
-            paresult=parSim(t11,t22,m,order)  # result of cost and record between two fixed boundaries
+        if(all(strsplit(t1, " ")[[1]] == "")){ #No need to consider transposing\
+          currCost = 0
+          currRecord = ""
+          for(i in which(t22$e != " ")){
+            currCost = currCost + m[which(order == " "), which(order == t22$e[i])]
+            currRecord = paste0(currRecord, "s#", t22$n[i], "# #", t22$n[i], "#", t22$e[i], "&")
           }
+          paresult = c(as.character(currCost), currRecord)
+        } else if(all(strsplit(t2, " ")[[1]] == "")){
+          currCost = 0
+          currRecord = ""
+          for(i in which(t11$e != " ")){
+            currCost = currCost + m[which(order == t11$e[i]), which(order == " ")]
+            currRecord = paste0(currRecord, "s#", t11$n[i], "#", t11$e[i], "#", t11$n[i], "#", " &")
+          }
+          paresult = c(as.character(currCost), currRecord)
+        } else {
+          paresult=parSim(t11,t22,m,order)  # result of cost and record between two fixed boundaries
+        }
 
-          sd=sTOd(paresult[2])  # formatted process of change
-          cost=cost+as.numeric(paresult[1])
-          if (paresult[2] !=""){
-            df=data.frame()
-            record = add_row(record,
+        sd=sTOd(paresult[2])  # formatted process of change
+        cost=cost+as.numeric(paresult[1])
+        if (paresult[2] !=""){
+          df=data.frame()
+          record = add_row(record,
                            speaker=s,
                            type=sd$type,
                            oldPosition=as.numeric(sd$oldPosition)+i-length(t1),
                            newPosition=as.numeric(sd$newPosition)+i-length(t1),
                            oldChar=sd$oldChar,
                            newChar=sd$newChar)
-          }
-          t1=""
-          t2=""
+        }
+        t1=""
+        t2=""
       }
     }
   }
@@ -989,12 +989,12 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
 
 #calCost without report - alternative by Ryan
 calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
-                                             0,1,0,0,0,0,0,
-                                             0,0,1,0,0,0,0,
-                                             0,0,0,1,0,0,0,
-                                             0,0,0,0,1,0,0,
-                                             0,0,0,0,0,1,0,
-                                             0,0,0,0,0,0,1), nrow=7),order){
+                                              0,1,0,0,0,0,0,
+                                              0,0,1,0,0,0,0,
+                                              0,0,0,1,0,0,0,
+                                              0,0,0,0,1,0,0,
+                                              0,0,0,0,0,1,0,
+                                              0,0,0,0,0,0,1), nrow=7),order){
   subCost=1  # pre-set substitution cost
   transCost=0.5  # pre-set transition cost of one space
   m=1-m #Similaritie sto differences
