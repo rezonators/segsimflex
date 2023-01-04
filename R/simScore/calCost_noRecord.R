@@ -9,19 +9,6 @@ source("R/simScore/helperFunctions.R")
 
 
 
-transpose = function(string, pos1, pos2 = NA){
-  if(is.na(pos2)) pos2 = pos1 + 1
-  if(pos2 < pos1){
-    pos2 = dummy
-    pos2 = pos1
-    pos1 = dummy
-  }
-  paste0(substring(string, 1, pos1-1),
-         substring(string, pos2, pos2),
-         substring(string, pos1 + 1, pos2 - 1),
-         substring(string, pos1, pos1),
-         substring(string, pos2 + 1, nchar(string)))
-}
 
 parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0){
   if(costSoFar < max){
@@ -140,7 +127,7 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
 # without trans
 # no record
 calCostNoTrans1 <- function(l1,l2, m, order){
-  record=data.frame()
+  actions = 0
   m=1-m
   if (length(l1)!=length(l2)){
     return ("different speakers try again")
@@ -158,10 +145,11 @@ calCostNoTrans1 <- function(l1,l2, m, order){
       e2 =substring(l2[s],i,i)
       if (e1!=e2){
         cost=cost+(m[which (order == e1),which (order == e2)])
+        actions=actions+1
       }
     }
   }
-  return(cost)
+  return(c(cost, actions))
 }
 
 

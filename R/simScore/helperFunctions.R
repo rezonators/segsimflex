@@ -16,7 +16,19 @@ str_extract_last = function(strings, regex){
   })
 }
 
-
+transpose = function(string, pos1, pos2 = NA){
+  if(is.na(pos2)) pos2 = pos1 + 1
+  if(pos2 < pos1){
+    pos2 = dummy
+    pos2 = pos1
+    pos1 = dummy
+  }
+  paste0(substring(string, 1, pos1-1),
+         substring(string, pos2, pos2),
+         substring(string, pos1 + 1, pos2 - 1),
+         substring(string, pos1, pos1),
+         substring(string, pos2 + 1, nchar(string)))
+}
 
 str_extract_first = function(strings, regex){
   contains = str_starts(strings, regex)
