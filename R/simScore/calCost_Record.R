@@ -42,6 +42,7 @@ calCostNoTrans <- function(l1,l2, m, order){
 
 
 parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0){
+  r = data.frame()
   if(costSoFar < max){
     t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
     t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
@@ -79,10 +80,12 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
 
     if (nchar(t1)<=1){
       if (e1==e2){
-        result = c(0, cumulActions)
+        result = c(0, cumulActions,r)
       }else{
         cumulActions = cumulActions + 1
-        result = c(m[which (order == e1),which (order == e2)], cumulActions)
+        new_row = c("Substitution", e1, e2)
+        r = rbind(r,new_row)
+        result = c(m[which (order == e1),which (order == e2)], cumulActions,r)
       }
     }else{
       if (e1==e2){
@@ -100,6 +103,10 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
                      parSimV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions))
         } else if(e1!=" " & e2!=" "){
           cumulActions = cumulActions + 1
+
+          new_row = c("Substitution", e1, e2)
+          r = rbind(r,new_row)
+
           opCost = m[which (order == e1),which (order == e2)]
           result =(c(opCost, 0) + parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions))
         } else {
@@ -109,10 +116,14 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             option1 = c(m[which (order == e1),which (order == e2)], 0) +
               parSimV3(s1,s2,m,order, transCost, max,
                         costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+            new_row_1 = c("Substitution", e1, e2)
+
             option2 = c(transCost[which (order == e1)] * (t1_first_nonsp - 1), 0) +
               parSimV3(t1,tback,m, order, transCost,
                         max = min(max, costSoFar + option1[1], na.rm = T),
                         costSoFar + transCost[which (order == e1)] * (t1_first_nonsp - 1), cumulActions)
+            new_row_2 = c("Transposition", e1, e2)
+
             if(any(is.na(option1)) & any(is.na(option2))){
               result = c(Inf, cumulActions)
             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
@@ -125,10 +136,14 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             option1 = c(m[which (order == e1),which (order == e2)], 0) +
               parSimV3(s1,s2,m,order, transCost,max,
                         costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+            new_row_1 = c("Substitution", e1, e2)
+
             option2 = c(transCost[which (order == e2)] * (t2_first_nonsp - 1), 0) +
               parSimV3(t1,tfor,m,order, transCost,
                         max = min(max, costSoFar + option1[1], na.rm = T),
                         costSoFar + transCost[which (order == e2)] * (t2_first_nonsp - 1), cumulActions)
+            new_row_2 = c("Transposition", e1, e2)
+
             if(any(is.na(option1)) & any(is.na(option2))){
               result = c(Inf, cumulActions)
             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
@@ -253,16 +268,24 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
           for(i in which(t2_list != " ")){
             cost = cost + m[which(order == " "), which(order == t2_list[i])]
             actions = actions + 1
+
+            new_row = c("Substitution", " ", t2_list[i])
+            record = rbind(record,new_row)
           }
         } else if(all(t2_list == " ")){
           for(i in which(t1_list != " ")){
             cost = cost + m[which(order == t1_list[i]), which(order == " ")]
             actions = actions + 1
+
+            new_row = c("Substitution",t1_list[i], " ")
+            record = rbind(record,new_row)
           }
         } else {
           parSimResult = parSimV3(t1,t2,m,order,transCost)
           cost = cost + parSimResult[1]
           actions = actions + parSimResult[2]  # result of cost and record between two fixed boundaries
+
+          record = rbind(record,parSimResult[3])
         }
       }
     }
