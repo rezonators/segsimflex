@@ -153,7 +153,24 @@ calCostNoTrans1 <- function(l1,l2, m, order){
 }
 
 
-#calCost without report - alternative by Ryan
+#' Calculate the cost of changing one annotation to the other
+#'
+#' @param l1 IU list1: a list of intonation units
+#' @param l2 IU list1: a list of intonation units
+#' @param m similarity matrix to customize substitution cost
+#'
+#' @return cost
+#' @export
+#'
+#' @examples
+#' m=matrix(data =
+#' c(1,0,0,0,0,0,0,
+#' 0,1,0,0,0,0,0,
+#' 0,0,1,0,0,0,0,
+#' 0,0,0,1,0,0,0,
+#' 0,0,0,0,1,0,0,
+#' 0,0,0,0,0,1,0,
+#' 0,0,0,0,0,0,1), nrow=7)
 calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
                                               0,1,0,0,0,0,0,
                                               0,0,1,0,0,0,0,
