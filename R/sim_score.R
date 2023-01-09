@@ -57,7 +57,7 @@ sim_Score<-function(d1,d2, record = FALSE, m = NA,
 
   if (trans == TRUE){
     if (record == TRUE){
-      cost=calCostV2(bdlist1,bdlist2,m,order)
+      cost=calCostV2(bdlist1,bdlist2,m,order, transCost)
       #cost=calCostV2(bdlist1,bdlist2,m,order)
       bdNumber=bdNumV2(bdlist1)
       sim=simScore(bdNumber,as.numeric(cost[1]))

@@ -316,17 +316,17 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
           }
         } else {
           parSimResult = parSimV3(t1,t2,m,order,transCost)
-          cost = cost + parSimResult[1]
-          actions = actions + parSimResult[2]  # result of cost and record between two fixed boundaries
+          cost = cost + parSimResult[[1]]
+          actions = actions + parSimResult[[2]]  # result of cost and record between two fixed boundaries
 
-          record = rbind(record,parSimResult[3])
+          record = rbind(record,data.frame(parSimResult[3:5]))
         }
       }
     }
   }
 
   colnames(record) = c("type", "e1", "e2")
-  return(c(cost, actions,record))
+  return(list(cost = cost, actions = actions, record = record))
 }  # input 2 genBd
 
 
