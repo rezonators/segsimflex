@@ -25,13 +25,7 @@ source("R/simScore/helperFunctions.R")
 #'
 #' @examples
 #' sim_Score(nccu_t049_1, nccu_t049_2, record = T)
-sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
-                                                            0,1,0,0,0,0,0,
-                                                            0,0,1,0,0,0,0,
-                                                            0,0,0,1,0,0,0,
-                                                            0,0,0,0,1,0,0,
-                                                            0,0,0,0,0,1,0,
-                                                            0,0,0,0,0,0,1), nrow=7),
+sim_Score<-function(d1,d2, record = FALSE, m,
                     transCost=0.5,
                     boundaries = c(",", ".", "?", "-", "+"),
                     noboundary = ";",
@@ -41,9 +35,8 @@ sim_Score<-function(d1,d2, record = FALSE, m=matrix(data =c(1,0,0,0,0,0,0,
   d1 = d1 %>% mutate(Utterance = str_replace_all(Utterance, " +", " "))
   d2 = d2 %>% mutate(Utterance = str_replace_all(Utterance, " +", " "))
 
-  # check length of prefixed boundaries and matrix
-  if (dim(m)[1] != length(boundaries)+2){
-    stop ("Please keep the dimension of the matrix and boundary list the same")
+  if (is.na(m)){
+    m=diag(length(boundaries)+2) # no endnote and no boundry
   }
 
   d1=reNA(d1) %>% reDS

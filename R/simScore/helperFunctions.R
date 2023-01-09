@@ -228,7 +228,7 @@ genBdV2 = function(d, boundaries, noboundary){
 # deal with transcost
 expandTrans <- function (t,o){
   if (length(t)==1){
-    return(rep(t,length(o)))
+    return(rep(t,length(o)-1))
 
   }else{
     return (t)

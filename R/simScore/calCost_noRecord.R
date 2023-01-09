@@ -78,10 +78,10 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
             option1 = c(m[which (order == e1),which (order == e2)], 0) +
               parSim1V3(s1,s2,m,order, transCost, max,
                         costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
-            option2 = c(transCost[which (order == e1)] * (t1_first_nonsp - 1), 0) +
+            option2 = c(transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1), 0) +
               parSim1V3(t1,tback,m, order, transCost,
                         max = min(max, costSoFar + option1[1], na.rm = T),
-                        costSoFar + transCost[which (order == e1)] * (t1_first_nonsp - 1), cumulActions)
+                        costSoFar + transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1), cumulActions)
             if(any(is.na(option1)) & any(is.na(option2))){
               result = c(Inf, cumulActions)
             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
@@ -94,10 +94,10 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
             option1 = c(m[which (order == e1),which (order == e2)], 0) +
               parSim1V3(s1,s2,m,order, transCost,max,
                         costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
-            option2 = c(transCost[which (order == e2)] * (t2_first_nonsp - 1), 0) +
+            option2 = c(transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1), 0) +
               parSim1V3(t1,tfor,m,order, transCost,
                         max = min(max, costSoFar + option1[1], na.rm = T),
-                        costSoFar + transCost[which (order == e2)] * (t2_first_nonsp - 1), cumulActions)
+                        costSoFar + transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1), cumulActions)
             if(any(is.na(option1)) & any(is.na(option2))){
               result = c(Inf, cumulActions)
             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){

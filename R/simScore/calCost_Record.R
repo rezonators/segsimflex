@@ -98,9 +98,16 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           t1_p2 = substring(t1, matches[1] + 1, nchar(t1))
           t2_p1 = substring(t2, 1, matches[1] - 1)
           t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
-          result =(c(opCost, -cumulActions) + #Because we're adding tgt two operations, there will be an extra copy of cumulActions, which we delete here
-                     parSimV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions) +
-                     parSimV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions))
+
+          part1=parSimV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions)
+          part2=parSimV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions)
+
+          r= rbind(r, part1[3], part2[3])
+
+          result =c(opCost+part1[1]+part2[1],
+                    part1[2]+part2[2]-cumulActions,
+                    r) #Because we're adding tgt two operations, there will be an extra copy of cumulActions, which we delete here
+
         } else if(e1!=" " & e2!=" "){
           cumulActions = cumulActions + 1
 
@@ -108,24 +115,32 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           r = rbind(r,new_row)
 
           opCost = m[which (order == e1),which (order == e2)]
-          result =(c(opCost, 0) + parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions))
+          partialResult = parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions)
+          result =c(opCost+partialResult[1], partialResult[2], r)
         } else {
           if (!is.na(t1_first_nonsp) & t1_first_nonsp > 1){ #Moving the first char of t2 back or substituting
             #Old condition:  (substring(t2,1,1)!=" " & substring(t2,1,1)!=" ")
             cumulActions = cumulActions + 1
-            option1 = c(m[which (order == e1),which (order == e2)], 0) +
-              parSimV3(s1,s2,m,order, transCost, max,
-                        costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
-            new_row_1 = c("Substitution", e1, e2)
 
-            option2 = c(transCost[which (order == e1)] * (t1_first_nonsp - 1), 0) +
-              parSimV3(t1,tback,m, order, transCost,
-                        max = min(max, costSoFar + option1[1], na.rm = T),
-                        costSoFar + transCost[which (order == e1)] * (t1_first_nonsp - 1), cumulActions)
+            new_row_1 = c("Substitution", e1, e2)
+            r= rbind(r,new_row_1)
+            partialresult_1=parSimV3(s1,s2,m,order, transCost, max,
+                                     costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+            option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[1],partialresult_1[2],r)
+
+
             new_row_2 = c("Transposition", e1, e2)
+            r= rbind(r,new_row_2)
+            partialresult_2= parSimV3(t1,tback,m, order, transCost,
+                                      max = min(max, costSoFar + option1[1], na.rm = T),
+                                      costSoFar + transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1),
+                                      cumulActions)
+            option2 = c(transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1) + partialresult_2[1],
+                        partialresult_2[2],r)
+
 
             if(any(is.na(option1)) & any(is.na(option2))){
-              result = c(Inf, cumulActions)
+              result = c(Inf, cumulActions,r)
             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
               result = option2
             } else {
@@ -133,19 +148,24 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             }
           } else if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1) { #Moving the first nonspace char of t2 front or substituting
             cumulActions = cumulActions + 1
-            option1 = c(m[which (order == e1),which (order == e2)], 0) +
-              parSimV3(s1,s2,m,order, transCost,max,
-                        costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
-            new_row_1 = c("Substitution", e1, e2)
 
-            option2 = c(transCost[which (order == e2)] * (t2_first_nonsp - 1), 0) +
-              parSimV3(t1,tfor,m,order, transCost,
-                        max = min(max, costSoFar + option1[1], na.rm = T),
-                        costSoFar + transCost[which (order == e2)] * (t2_first_nonsp - 1), cumulActions)
+            new_row_1 = c("Substitution", e1, e2)
+            r= rbind(r,new_row_1)
+            partialresult_1 =parSimV3(s1,s2,m,order, transCost,max,
+                                      costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+            option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[1], partialresult_1[2],r)
+
             new_row_2 = c("Transposition", e1, e2)
+            r= rbind(r,new_row_2)
+            partialresult_2 = parSimV3(t1,tfor,m,order, transCost,
+                                      max = min(max, costSoFar + option1[1], na.rm = T),
+                                      costSoFar + transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1),
+                                      cumulActions)
+            option2 = c(transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1)+partialresult_2[1],
+                        partialresult_2[2],r)
 
             if(any(is.na(option1)) & any(is.na(option2))){
-              result = c(Inf, cumulActions)
+              result = c(Inf, cumulActions,r)
             } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
               result = option2
             } else {
@@ -153,8 +173,12 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             }
           } else {
             cumulActions = cumulActions + 1
+            new_row_1 = c("Substitution", e1, e2)
+            r= rbind(r,new_row_1)
             opCost = m[which (order == e1),which (order == e2)]
-            result =(c(opCost, 0) + parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions))
+            partialResult= parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost,
+                     cumulActions)
+            result =(c(opCost+partialResult[1], partialResult[2],r))
           }
         }
       }
