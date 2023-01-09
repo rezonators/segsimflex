@@ -4,10 +4,10 @@ library(reshape)
 library(tidyverse)
 library(dplyr)
 
-source("R/simScore/preprocessing.R")
-source("R/simScore/calCost_noRecord.R")
-source("R/simScore/calCost_Record.R")
-source("R/simScore/helperFunctions.R")
+source("R/preprocessing.R")
+source("R/calCost_noRecord.R")
+source("R/calCost_Record.R")
+source("R/helperFunctions.R")
 
 #' Similarity score calculation
 #'
@@ -25,7 +25,7 @@ source("R/simScore/helperFunctions.R")
 #'
 #' @examples
 #' sim_Score(nccu_t049_1, nccu_t049_2, record = T)
-sim_Score<-function(d1,d2, record = FALSE, m,
+sim_Score<-function(d1,d2, record = FALSE, m = NA,
                     transCost=0.5,
                     boundaries = c(",", ".", "?", "-", "+"),
                     noboundary = ";",
@@ -35,7 +35,7 @@ sim_Score<-function(d1,d2, record = FALSE, m,
   d1 = d1 %>% mutate(Utterance = str_replace_all(Utterance, " +", " "))
   d2 = d2 %>% mutate(Utterance = str_replace_all(Utterance, " +", " "))
 
-  if (is.na(m)){
+  if (any(is.na(m))){
     m=diag(length(boundaries)+2) # no endnote and no boundry
   }
 
@@ -57,7 +57,7 @@ sim_Score<-function(d1,d2, record = FALSE, m,
 
   if (trans == TRUE){
     if (record == TRUE){
-      cost=calCost(bdlist1,bdlist2,m,order)
+      cost=calCostV2(bdlist1,bdlist2,m,order)
       #cost=calCostV2(bdlist1,bdlist2,m,order)
       bdNumber=bdNumV2(bdlist1)
       sim=simScore(bdNumber,as.numeric(cost[1]))

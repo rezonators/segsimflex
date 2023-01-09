@@ -4,8 +4,8 @@ library(reshape)
 library(tidyverse)
 library(dplyr)
 
-source("R/simScore/preprocessing.R")
-source("R/simScore/helperFunctions.R")
+source("R/preprocessing.R")
+source("R/helperFunctions.R")
 
 # input two sub boundary list
 # without trans
@@ -126,22 +126,26 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             r= rbind(r,new_row_1)
             partialresult_1=parSimV3(s1,s2,m,order, transCost, max,
                                      costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
-            option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[1],partialresult_1[2],r)
+            if(!any(is.na(partialresult_1))){
+              option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[[1]],partialresult_1[[2]],r)
+            } else option1 = NA
 
 
             new_row_2 = c("Transposition", e1, e2)
             r= rbind(r,new_row_2)
-            partialresult_2= parSimV3(t1,tback,m, order, transCost,
-                                      max = min(max, costSoFar + option1[1], na.rm = T),
+            partialresult_2= parSimV3(t1, tback,m, order, transCost,
+                                      max = min(max, costSoFar + option1[[1]], na.rm = T),
                                       costSoFar + transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1),
                                       cumulActions)
-            option2 = c(transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1) + partialresult_2[1],
-                        partialresult_2[2],r)
+            if(!any(is.na(partialresult_2))){
+              option2 = c(transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1) + partialresult_2[[1]],
+                        partialresult_2[[2]],r)
+            } else option2 = NA
 
 
             if(any(is.na(option1)) & any(is.na(option2))){
               result = c(Inf, cumulActions,r)
-            } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
+            } else if (any(is.na(option1)) | ((option2[[1]] < option1[[1]]) %>% replace_na(F))){
               result = option2
             } else {
               result = option1
@@ -153,20 +157,24 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             r= rbind(r,new_row_1)
             partialresult_1 =parSimV3(s1,s2,m,order, transCost,max,
                                       costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
-            option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[1], partialresult_1[2],r)
+            if(!any(is.na(partialresult_1))){
+              option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[[1]], partialresult_1[[2]],r)
+            } else option1 = NA
 
             new_row_2 = c("Transposition", e1, e2)
             r= rbind(r,new_row_2)
             partialresult_2 = parSimV3(t1,tfor,m,order, transCost,
-                                      max = min(max, costSoFar + option1[1], na.rm = T),
+                                      max = min(max, costSoFar + option1[[1]], na.rm = T),
                                       costSoFar + transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1),
                                       cumulActions)
-            option2 = c(transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1)+partialresult_2[1],
-                        partialresult_2[2],r)
+            if(!any(is.na(partialresult_2))){
+              option2 = c(transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1)+partialresult_2[[1]],
+                        partialresult_2[[2]],r)
+            } else option2 = NA
 
             if(any(is.na(option1)) & any(is.na(option2))){
               result = c(Inf, cumulActions,r)
-            } else if (any(is.na(option1)) | ((option2[1] < option1[1]) %>% replace_na(F))){
+            } else if (any(is.na(option1)) | ((option2[[1]] < option1[[1]]) %>% replace_na(F))){
               result = option2
             } else {
               result = option1
@@ -178,7 +186,9 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             opCost = m[which (order == e1),which (order == e2)]
             partialResult= parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost,
                      cumulActions)
-            result =(c(opCost+partialResult[1], partialResult[2],r))
+            if(!any(is.na(partialResult))){
+              result =(c(opCost+partialResult[[1]], partialResult[[2]],r))
+            } else result = NA
           }
         }
       }

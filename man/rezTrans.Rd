@@ -4,7 +4,7 @@
 \alias{rezTrans}
 \title{Inter-annotator agreement}
 \usage{
-rezTrans(inPath, outPath)
+rezTrans(inPath)
 }
 \arguments{
 \item{inPath}{The string of the path of the .rez file}
@@ -12,7 +12,7 @@ rezTrans(inPath, outPath)
 \item{outPath}{The string of the path of the output csv file}
 }
 \value{
-A csv file that can be used for similarity score and inter-annotated agreement
+A data frame that can be used for similarity score and inter-annotated agreement
 }
 \description{
 Inter-annotator agreement

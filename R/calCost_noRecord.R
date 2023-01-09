@@ -4,8 +4,8 @@ library(reshape)
 library(tidyverse)
 library(dplyr)
 
-source("R/simScore/preprocessing.R")
-source("R/simScore/helperFunctions.R")
+source("R/preprocessing.R")
+source("R/helperFunctions.R")
 
 
 
