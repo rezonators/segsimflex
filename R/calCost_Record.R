@@ -92,7 +92,10 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
         result = parSimV3(s1,s2,m, order, transCost, max, costSoFar, cumulActions)
       }else{
         if(e1!=" " & e2!=" "){
-          cumulActions = cumulActions + 1
+          #Reason why line below is commented out:
+          #At this stage if there's still such substitution,
+          #There must have been a transposition already.
+          #cumulActions = cumulActions + 1
 
           new_row = c("Substitution", e1, e2)
           r = rbind(r,new_row)
@@ -105,7 +108,10 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
 
         } else if(length(matches) > 0){
           opCost = m[which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
-          if(t1_list[matches[1]] != t2_list[matches[1]]) cumulActions = cumulActions + 1
+          #Reason why line below is commented out:
+          #At this stage if there's still such substitution,
+          #There must have been a transposition already.
+          #if(t1_list[matches[1]] != t2_list[matches[1]]) cumulActions = cumulActions + 1
           t1_p1 = substring(t1, 1, matches[1] - 1)
           t1_p2 = substring(t1, matches[1] + 1, nchar(t1))
           t2_p1 = substring(t2, 1, matches[1] - 1)
