@@ -13,10 +13,10 @@ library(rjson)
 #' @export
 #'
 #'
-rezTrans = function(inPath){
+rezTrans = function(inPath,outPath){
   split = importRez(inPath, concatFields = "Utterance")
   temp=split$unitDF
-  data.frame(Turn = temp$TurnSeq,Speaker = temp$Speaker,Utterance =temp$Utterance)
-
+  result=data.frame(Turn = temp$TurnSeq,Speaker = temp$Speaker,Utterance =temp$Utterance)
+  write.csv(result,outPath,fileEncoding = "UTF-8")
 }
 

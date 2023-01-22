@@ -5,36 +5,45 @@ library(tidyverse)
 library(dplyr)
 ## only need to change file name in line 406 407
 
-puncNum <- function(bd){ # Used to get the number of each kind's punctuation in data.bd is the number of punctuation
-  commaNum = 0
-  periodNum = 0
-  questionNum = 0
-  dashNum = 0
-  n=0  # number of boundries in a list
-  l=0  # temperate variable for counting
-  for (s in length(bd)){  # for each speaker why length (bd) mens speaker here?
+puncNum <- function(bd， boundaries){ # Used to get the number of each kind's punctuation in data.bd is the number of punctuation
+  # commaNum = 0
+  # periodNum = 0
+  # questionNum = 0
+  # dashNum = 0
+  # n=0  # number of boundries in a list
+  # l=0  # temperate variable for counting
+  # for (s in length(bd)){  # for each speaker why length (bd) mens speaker here?
+  #   for (i in seq(1,nchar(bd[s]))){  # for index of element in each list
+  #     e =substring(bd[1,s],i,i)
+  #     if (substring(bd[1,s],i,i) == ","){
+  #       commaNum = commaNum + 1
+  #     }
+  #     if (substring(bd[1,s],i,i) == "."){
+  #       periodNum = periodNum + 1
+  #     }
+  #     if (substring(bd[1,s],i,i) == "?"){
+  #       questionNum = questionNum + 1
+  #     }
+  #     if (substring(bd[1,s],i,i) == "+"){
+  #       dashNum = dashNum + 1
+  #     }
+  #     l=l+1
+  #   }
+  #   n=n+l
+  #   l=0
+  # }
+  # Num = c(commaNum,periodNum,questionNum,dashNum)
+  # #print(typeof(Num))
+  # return(Num)
+  Num = 0
     for (i in seq(1,nchar(bd[s]))){  # for index of element in each list
       e =substring(bd[1,s],i,i)
-      if (substring(bd[1,s],i,i) == ","){
-        commaNum = commaNum + 1
+      if (e %in% boundaries){
+        Num = Num +1
       }
-      if (substring(bd[1,s],i,i) == "."){
-        periodNum = periodNum + 1
-      }
-      if (substring(bd[1,s],i,i) == "?"){
-        questionNum = questionNum + 1
-      }
-      if (substring(bd[1,s],i,i) == "+"){
-        dashNum = dashNum + 1
-      }
-      l=l+1
     }
-    n=n+l
-    l=0
-  }
-  Num = c(commaNum,periodNum,questionNum,dashNum)
-  #print(typeof(Num))
   return(Num)
+
 }
 gePlace <- function(num,number){ # generate a place to insert punctuation
   # creating a list with sample function
@@ -143,12 +152,14 @@ IAA <- function(data1,data2, record = FALSE, m = NA,
   data1Num = bdNum(bd1)  # calculate the number of boundries for a file
   data2Num = bdNum(bd2)  # calculate the number of boundries for a file
 
-  data1Puncnum = puncNum(bd1)#number of punctuation in each kind
-  data1Number = data1Puncnum[1]+data1Puncnum[2]+data1Puncnum[3]+data1Puncnum[4] #get total number of punctuation
+  # data1Puncnum = puncNum(bd1)#number of punctuation in each kind
+  # data1Number = data1Puncnum[1]+data1Puncnum[2]+data1Puncnum[3]+data1Puncnum[4] #get total number of punctuation
+  data1Number=puncNum(bd1)
   data1Place = gePlace(data1Num, data1Number)#num is total number of boundry, number is number of punctuation
 
-  data2Puncnum = puncNum(bd2)
-  data2Number = data2Puncnum[1]+data2Puncnum[2]+data2Puncnum[3]+data2Puncnum[4] #get total number of punctuation
+  # data2Puncnum = puncNum(bd2)
+  # data2Number = data2Puncnum[1]+data2Puncnum[2]+data2Puncnum[3]+data2Puncnum[4] #get total number of punctuation
+  data2Number=puncNum(bd2)
   data2Place = gePlace(data2Num, data2Number)#num is total number of boundry, number is number of punctuation
 
   #main function
@@ -173,4 +184,5 @@ IAA <- function(data1,data2, record = FALSE, m = NA,
   return(Iaa)
 
 }
+
 
