@@ -5,44 +5,39 @@ library(tidyverse)
 library(dplyr)
 ## only need to change file name in line 406 407
 
-puncNum <- function(bd， boundaries){ # Used to get the number of each kind's punctuation in data.bd is the number of punctuation
-  # commaNum = 0
-  # periodNum = 0
-  # questionNum = 0
-  # dashNum = 0
-  # n=0  # number of boundries in a list
-  # l=0  # temperate variable for counting
-  # for (s in length(bd)){  # for each speaker why length (bd) mens speaker here?
-  #   for (i in seq(1,nchar(bd[s]))){  # for index of element in each list
-  #     e =substring(bd[1,s],i,i)
-  #     if (substring(bd[1,s],i,i) == ","){
-  #       commaNum = commaNum + 1
-  #     }
-  #     if (substring(bd[1,s],i,i) == "."){
-  #       periodNum = periodNum + 1
-  #     }
-  #     if (substring(bd[1,s],i,i) == "?"){
-  #       questionNum = questionNum + 1
-  #     }
-  #     if (substring(bd[1,s],i,i) == "+"){
-  #       dashNum = dashNum + 1
-  #     }
-  #     l=l+1
-  #   }
-  #   n=n+l
-  #   l=0
-  # }
-  # Num = c(commaNum,periodNum,questionNum,dashNum)
-  # #print(typeof(Num))
-  # return(Num)
-  Num = 0
+puncNum <- function(bd, order){ # Used to get the number of each kind's punctuation in data.bd is the number of punctuation
+  result = rep(0,length(order))
+  n=0  # number of boundries in a list
+  l=0  # temperate variable for counting
+  for (s in length(bd)){  # for each speaker why length (bd) mens speaker here?
     for (i in seq(1,nchar(bd[s]))){  # for index of element in each list
       e =substring(bd[1,s],i,i)
-      if (e %in% boundaries){
-        Num = Num +1
+      for ( j in seq(1,seq(length(order)))){
+        if (substring(bd[1,s],i,i) == order[j]){
+             result[j] = result[j] + 1
+        }
       }
+
+      # if (substring(bd[1,s],i,i) == ","){
+      #   commaNum = commaNum + 1
+      # }
+      # if (substring(bd[1,s],i,i) == "."){
+      #   periodNum = periodNum + 1
+      # }
+      # if (substring(bd[1,s],i,i) == "?"){
+      #   questionNum = questionNum + 1
+      # }
+      # if (substring(bd[1,s],i,i) == "+"){
+      #   dashNum = dashNum + 1
+      # }
+      l=l+1
     }
-  return(Num)
+    n=n+l
+    l=0
+  }
+  #print(typeof(Num))
+  return(result)
+
 
 }
 gePlace <- function(num,number){ # generate a place to insert punctuation
@@ -74,24 +69,31 @@ insertPunc <- function(place,puncnum,number,num,bd){ #insert punctuation based o
   puncList = paste(puncList, collapse = "")
   return (puncList)
 }
-speaker_num <- function(bd,dataPlace,number,puncnum,num){ #generate random puncList
-  allP=c(",",".","?","+")
-  puncList = rep(" ",num)
+speaker_num <- function(bd,dataPlace,number,puncnum,num,order){ #generate random puncList
+  #allP=c(",",".","?","+")
+  #puncList = rep(" ",num)
+  cumNumList = c(1, cumsum(puncnum))
   for (i in seq(1,length(bd))){
     for (j in seq(1,nchar(bd[[i]]))){
       prob = floor(runif(1,min=1,max=num))
-      if (1<=prob && prob<puncnum[1]){#if the number is in range of comma
-        substring(bd[[i]],j,j) = ","
+
+      for (k in seq(1,length(order))){
+          if (prob>=cumNumList[k] && prob<cumNumList[k+1]){
+            substring(bd[[i]],j,j) = order[k]
+          }
       }
-      if (puncnum[1]<=prob && prob<(puncnum[2]+puncnum[1])){ #if the number is in range of period
-        substring(bd[[i]],j,j) = "."
-      }
-      if ((puncnum[2]+puncnum[1])<=prob && prob<(puncnum[2]+puncnum[3]+puncnum[1])){ #if the number is in range of ?
-        substring(bd[[i]],j,j) = "."
-      }
-      if ((puncnum[2]+puncnum[3]+puncnum[1])<=prob && prob<(puncnum[2]+puncnum[3]+puncnum[4]+puncnum[1])){ #if the number is in range of +
-        substring(bd[[i]],j,j) = "."
-      }
+      # if (1<=prob && prob<puncnum[1]){#if the number is in range of comma
+      #   substring(bd[[i]],j,j) = ","
+      # }
+      # if (puncnum[1]<=prob && prob<(puncnum[2]+puncnum[1])){ #if the number is in range of period
+      #   substring(bd[[i]],j,j) = "."
+      # }
+      # if ((puncnum[2]+puncnum[1])<=prob && prob<(puncnum[2]+puncnum[3]+puncnum[1])){ #if the number is in range of ?
+      #   substring(bd[[i]],j,j) = "."
+      # }
+      # if ((puncnum[2]+puncnum[3]+puncnum[1])<=prob && prob<(puncnum[2]+puncnum[3]+puncnum[4]+puncnum[1])){ #if the number is in range of +
+      #   substring(bd[[i]],j,j) = "."
+      # }
     }
   }
   return (bd)
@@ -152,14 +154,12 @@ IAA <- function(data1,data2, record = FALSE, m = NA,
   data1Num = bdNum(bd1)  # calculate the number of boundries for a file
   data2Num = bdNum(bd2)  # calculate the number of boundries for a file
 
-  # data1Puncnum = puncNum(bd1)#number of punctuation in each kind
-  # data1Number = data1Puncnum[1]+data1Puncnum[2]+data1Puncnum[3]+data1Puncnum[4] #get total number of punctuation
-  data1Number=puncNum(bd1)
+  data1Puncnum = puncNum(bd1, order)#number of punctuation in each kind
+  data1Number = sum(data1Puncnum) #get total number of punctuation
   data1Place = gePlace(data1Num, data1Number)#num is total number of boundry, number is number of punctuation
 
-  # data2Puncnum = puncNum(bd2)
-  # data2Number = data2Puncnum[1]+data2Puncnum[2]+data2Puncnum[3]+data2Puncnum[4] #get total number of punctuation
-  data2Number=puncNum(bd2)
+  data2Puncnum = puncNum(bd2, order)
+  data2Number = sum(data2Puncnum) #get total number of
   data2Place = gePlace(data2Num, data2Number)#num is total number of boundry, number is number of punctuation
 
   #main function
@@ -168,8 +168,8 @@ IAA <- function(data1,data2, record = FALSE, m = NA,
   bdNumber=bdNumV2(bd1)
   for (i in seq(1,K)){
     message(paste0("Doing iteration ", i))
-    dataPunc1 = speaker_num(bd1,data1Place,data1Number,data1Puncnum,data1Num)
-    dataPunc2 = speaker_num(bd2,data2Place,data2Number,data2Puncnum,data2Num)
+    dataPunc1 = speaker_num(bd1,data1Place,data1Number,data1Puncnum,data1Num,order)
+    dataPunc2 = speaker_num(bd2,data2Place,data2Number,data2Puncnum,data2Num,order)
     cost = suppressMessages(calCost1V2(dataPunc1,dataPunc2, m, order, transCost))#If only need to use calculate cost without using simularity score, use calCost1
     sim_N =simScore(bdNumber,cost[1])
     sim_B =simScore(cost[2],cost[1])
