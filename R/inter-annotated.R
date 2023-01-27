@@ -12,7 +12,7 @@ puncNum <- function(bd, order){ # Used to get the number of each kind's punctuat
   for (s in length(bd)){  # for each speaker why length (bd) mens speaker here?
     for (i in seq(1,nchar(bd[s]))){  # for index of element in each list
       e =substring(bd[1,s],i,i)
-      for ( j in seq(1,seq(length(order)))){
+      for (j in seq(1,length(order))){
         if (substring(bd[1,s],i,i) == order[j]){
              result[j] = result[j] + 1
         }
