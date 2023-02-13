@@ -30,6 +30,16 @@ transpose = function(string, pos1, pos2 = NA){
          substring(string, pos2 + 1, nchar(string)))
 }
 
+transposePos = function(list, pos1, pos2 = NA){
+  if(is.na(pos2)) pos2 = pos1 + 1
+  if(pos2 < pos1){
+    pos2 = dummy
+    pos2 = pos1
+    pos1 = dummy
+  }
+  c(list[1, pos1-1],list[pos2, pos2],list[pos1 + 1, pos2 - 1],list[pos1, pos1],list[pos2 + 1, length(list)])
+}
+
 str_extract_first = function(strings, regex){
   contains = str_starts(strings, regex)
   locs = str_locate(strings, regex)
