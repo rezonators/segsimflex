@@ -55,8 +55,8 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
     t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
     t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
 
-    p1 = p1[1 + leading_sp, length(p1) - trailing_sp]
-    p2 = p2[1 + leading_sp, length(p2) - trailing_sp]
+    p1 = p1[1 + leading_sp: length(p1) - trailing_sp]
+    p2 = p2[1 + leading_sp: length(p2) - trailing_sp]
 
     indent = rep(">", cumulActions) %>% paste0(collapse="")
     print(paste0(indent, "t1:'", t1, "'; t2:'", t2, "'; Max:", max, "; costSoFar:", costSoFar, "; cumulActions:", cumulActions))
@@ -126,10 +126,10 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           t2_p1 = substring(t2, 1, matches[1] - 1)
           t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
 
-          p1_p1 = p1[1, matches[1] - 1]
-          p1_p2 = p1[matches[1] + 1, nchar(t1)]
-          p2_p1 = p2[1, matches[1] - 1]
-          p2_p2 = p2[matches[1] + 1, nchar(t2)]
+          p1_p1 = p1[1: matches[1] - 1]
+          p1_p2 = p1[matches[1] + 1: nchar(t1)]
+          p2_p1 = p2[1: matches[1] - 1]
+          p2_p2 = p2[matches[1] + 1: nchar(t2)]
 
           part1=parSimV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p1,p2_p1)
           part2=parSimV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p2,p2_p2)
@@ -333,16 +333,16 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
       t1s = sapply(transAreas1, paste0, collapse = "")
       t2s = sapply(transAreas2, paste0, collapse = "")
 
-      p1s = sapply(transAreasPos1, paste0, collapse = "")
-      p2s = sapply(transAreasPos2, paste0, collapse = "")
+      p1s = transAreasPos1
+      p2s = transAreasPos2
 
 
       for(x in 1:length(t1s)){
         t1 = t1s[x]
         t2 = t2s[x]
 
-        p1 = p1s[x]
-        p2 = p2s[x]
+        p1 = p1s[[x]]
+        p2 = p2s[[x]]
         print(paste0("Speaker ", s, "/", length(l1), ", Segment ", x, "/", length(t1s), " - t1:", t1, "|t2:", t2))
 
         t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
@@ -356,14 +356,14 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
         t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
         t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
 
-        p1 = substring(p1, 1 + leading_sp, nchar(p1) - trailing_sp)
-        p2 = substring(p2, 1 + leading_sp, nchar(p2) - trailing_sp)
+        p1 = p1[1 + leading_sp: nchar(p1) - trailing_sp]
+        p2 = p2[1 + leading_sp: nchar(p2) - trailing_sp]
 
         t1_list = strsplit(t1, "")[[1]]
         t2_list = strsplit(t2, "")[[1]]
 
-        p1_list = strsplit(p1, "")[[1]]
-        p2_list = strsplit(p2, "")[[1]]
+        p1_list = p1
+        p2_list = p2
 
         if(all(t1_list == " ")){ #No need to consider transposing\
           for(i in which(t2_list != " ")){
