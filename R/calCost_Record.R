@@ -30,18 +30,18 @@ calCostNoTrans <- function(l1,l2, m, order){
       if (e1!=e2){
         cost=cost+(m[which (order == e1),which (order == e2)])
         actions=actions+1
-        new_row = c("Substitution", e1, e2)
+        new_row = c("Substitution", e1, e2, i)
         record = rbind(record,new_row)
       }
     }
   }
 
-  colnames(record) = c("type", "e1", "e2")
+  colnames(record) = c("type", "e1", "e2", "position")
   return(c(cost, actions,record))
 }
 
 
-parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0){
+parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0,p1,p2){
   r = data.frame()
   if(costSoFar < max){
     t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
@@ -55,6 +55,9 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
     t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
     t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
 
+    p1 = p1[1 + leading_sp, length(p1) - trailing_sp]
+    p2 = p2[1 + leading_sp, length(p2) - trailing_sp]
+
     indent = rep(">", cumulActions) %>% paste0(collapse="")
     print(paste0(indent, "t1:'", t1, "'; t2:'", t2, "'; Max:", max, "; costSoFar:", costSoFar, "; cumulActions:", cumulActions))
 
@@ -64,6 +67,10 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
     f2 =substring(t2,nchar(t2),nchar(t2))
     s1=substring(t1,2,nchar(t1))
     s2=substring(t2,2,nchar(t2))
+    e1p=p1[1]
+    e2p=p2[1]
+    s1p=p1[2:length(p1)]
+    s2p=p2[2:length(p2)]
 
     t1_list = strsplit(t1, "")[[1]]
     t2_list = strsplit(t2, "")[[1]]
@@ -72,10 +79,12 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
     t1_first_nonsp = str_locate(t1, "[^ ]")[1]
     if(!is.na(t1_first_nonsp) & t1_first_nonsp > 1){
       tback=transpose(t2, 1, t1_first_nonsp)
+      pback=transposePos(p2,1, t1_first_nonsp)
     }
     t2_first_nonsp = str_locate(t2, "[^ ]")[1]
     if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1){
       tfor=transpose(t2, 1, t2_first_nonsp)
+      pfor=transposePos(p2, 1, t2_first_nonsp)
     }
 
     if (nchar(t1)<=1){
@@ -83,13 +92,13 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
         result = c(0, cumulActions,r)
       }else{
         cumulActions = cumulActions + 1
-        new_row = c("Substitution", e1, e2)
+        new_row = c("Substitution", e1, e2, 2, e1p, e1p)
         r = rbind(r,new_row)
         result = c(m[which (order == e1),which (order == e2)], cumulActions,r)
       }
     }else{
       if (e1==e2){
-        result = parSimV3(s1,s2,m, order, transCost, max, costSoFar, cumulActions)
+        result = parSimV3(s1,s2,m, order, transCost, max, costSoFar, cumulActions,s1p,s2p)
       }else{
         if(e1!=" " & e2!=" "){
           #Reason why line below is commented out:
@@ -97,11 +106,11 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           #There must have been a transposition already.
           #cumulActions = cumulActions + 1
 
-          new_row = c("Substitution", e1, e2)
+          new_row = c("Substitution", e1, e2, 2, e1p, e1p)
           r = rbind(r,new_row)
 
           opCost = m[which (order == e1),which (order == e2)]
-          partialResult = parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions)
+          partialResult = parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions,s1p,s2p)
           if(!any(is.na(partialResult))){
             result =c(opCost+partialResult[[1]], partialResult[[2]], r)
           } else result = NA
@@ -117,8 +126,13 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           t2_p1 = substring(t2, 1, matches[1] - 1)
           t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
 
-          part1=parSimV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions)
-          part2=parSimV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions)
+          p1_p1 = p1[1, matches[1] - 1]
+          p1_p2 = p1[matches[1] + 1, nchar(t1)]
+          p2_p1 = p2[1, matches[1] - 1]
+          p2_p2 = p2[matches[1] + 1, nchar(t2)]
+
+          part1=parSimV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p1,p2_p1)
+          part2=parSimV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p2,p2_p2)
 
           r= rbind(r, part1[3], part2[3])
 
@@ -137,21 +151,21 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             #Old condition:  (substring(t2,1,1)!=" " & substring(t2,1,1)!=" ")
             cumulActions = cumulActions + 1
 
-            new_row_1 = c("Substitution", e1, e2)
+            new_row_1 = c("Substitution", e1, e2, 2, e1p, e1p)
             r= rbind(r,new_row_1)
             partialresult_1=parSimV3(s1,s2,m,order, transCost, max,
-                                     costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+                                     costSoFar + m[which (order == e1),which (order == e2)], cumulActions,s1p,s2p)
             if(!any(is.na(partialresult_1))){
               option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[[1]],partialresult_1[[2]],r)
             } else option1 = NA
 
-
-            new_row_2 = c("Transposition", e1, e2)
+            if (e1==" ") {temp=e2} else {temp=e1}
+            new_row_2 = c("Transposition", e1, e2, 2, temp, temp)
             r= rbind(r,new_row_2)
             partialresult_2= parSimV3(t1, tback,m, order, transCost,
                                       max = min(max, costSoFar + option1[[1]], na.rm = T),
                                       costSoFar + transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1),
-                                      cumulActions)
+                                      cumulActions,p1, pback)
             if(!any(is.na(partialresult_2))){
               option2 = c(transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1) + partialresult_2[[1]],
                         partialresult_2[[2]],r)
@@ -168,20 +182,21 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           } else if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1) { #Moving the first nonspace char of t2 front or substituting
             cumulActions = cumulActions + 1
 
-            new_row_1 = c("Substitution", e1, e2)
+            new_row_1 = c("Substitution", e1, e2, 2, e1p, e1p)
             r= rbind(r,new_row_1)
             partialresult_1 =parSimV3(s1,s2,m,order, transCost,max,
-                                      costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
+                                      costSoFar + m[which (order == e1),which (order == e2)], cumulActions,s1p,s2p)
             if(!any(is.na(partialresult_1))){
               option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[[1]], partialresult_1[[2]],r)
             } else option1 = NA
 
-            new_row_2 = c("Transposition", e1, e2)
+            if (e1==" ") {temp=e2} else {temp=e1}
+            new_row_2 = c("Transposition", e1, e2,2,temp,temp)
             r= rbind(r,new_row_2)
             partialresult_2 = parSimV3(t1,tfor,m,order, transCost,
                                       max = min(max, costSoFar + option1[[1]], na.rm = T),
                                       costSoFar + transCost[which(order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1),
-                                      cumulActions)
+                                      cumulActions,p1,pfor)
             if(!any(is.na(partialresult_2))){
               option2 = c(transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1)+partialresult_2[[1]],
                         partialresult_2[[2]],r)
@@ -196,11 +211,11 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             }
           } else {
             cumulActions = cumulActions + 1
-            new_row_1 = c("Substitution", e1, e2)
+            new_row_1 = c("Substitution", e1, e2,e1p,e1p)
             r= rbind(r,new_row_1)
             opCost = m[which (order == e1),which (order == e2)]
             partialResult= parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost,
-                     cumulActions)
+                     cumulActions,p1,p2)
             if(!any(is.na(partialResult))){
               result =(c(opCost+partialResult[[1]], partialResult[[2]],r))
             } else result = NA
@@ -227,6 +242,7 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
                                               0,0,0,0,0,1,0,
                                               0,0,0,0,0,0,1), nrow=7),order,transCost){
 
+
   record = data.frame()
   subCost=1  # pre-set substitution cost
   # transCost=0.5  # pre-set transition cost of one space
@@ -245,6 +261,9 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
   actions = 0
   fullMatches = character(0)
   for (s in seq(1,length(l1))){  # for each speacker
+    pos1=seq(nchar(l1[[s]]))
+    pos2=seq(nchar(l2[[s]]))
+
     currBlist1 = l1[[s]]
     currBlist2 = l2[[s]]
 
@@ -259,7 +278,7 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
       cost = cost + sapply(which(substPos), function(x) m[which(currBlistList1[x] == order), which(currBlistList2[x] == order)]) %>% sum
 
       for (pos in which(substPos)){
-        new_row = c("Substitution", substring(currBlist1, pos, pos), substring(currBlist2, pos, pos), 1)
+        new_row = c("Substitution", substring(currBlist1, pos, pos), substring(currBlist2, pos, pos), 1, pos, pos)
         record = rbind(record,new_row)
       }
 
@@ -271,19 +290,31 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
     #put a boundary
     transAreas1 = list()
     transAreas2 = list()
+
+    transAreasPos1 = list()
+    transAreasPos2 = list()
     if(posMatch[1]) currItem = 0 else {
       currItem = 1
       transAreas1[[currItem]] = character(0)
       transAreas2[[currItem]] = character(0)
+
+      transAreasPos1[[currItem]] = character(0)
+      transAreasPos2[[currItem]] = character(0)
     }
     for(i in 1:length(posMatch)){
       if(posMatch[i]){
         currItem = currItem + 1
         transAreas1[[currItem]] = character(0)
         transAreas2[[currItem]] = character(0)
+
+        transAreasPos1[[currItem]] = character(0)
+        transAreasPos2[[currItem]] = character(0)
       } else {
         transAreas1[[currItem]] = c(transAreas1[[currItem]], substring(currBlist1, i, i))
         transAreas2[[currItem]] = c(transAreas2[[currItem]], substring(currBlist2, i, i))
+
+        transAreasPos1[[currItem]] = c(transAreasPos1[[currItem]], pos1[i])
+        transAreasPos2[[currItem]] = c(transAreasPos2[[currItem]], pos2[i])
       }
     }
 
@@ -291,7 +322,10 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
     transAreas1 = transAreas1[!spaceOnly]
     transAreas2 = transAreas2[!spaceOnly]
 
-    colnames(record) = c("type", "e1", "e2", "pass")
+    transAreasPos1 = transAreasPos1[!spaceOnly]
+    transAreasPos2 = transAreasPos2[!spaceOnly]
+
+    colnames(record) = c("type", "e1", "e2", "pass", "pos1","pos2")
 
     #Now go through each of those non-matching transitional areas
     #And call parSim
@@ -299,10 +333,16 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
       t1s = sapply(transAreas1, paste0, collapse = "")
       t2s = sapply(transAreas2, paste0, collapse = "")
 
+      p1s = sapply(transAreasPos1, paste0, collapse = "")
+      p2s = sapply(transAreasPos2, paste0, collapse = "")
+
 
       for(x in 1:length(t1s)){
         t1 = t1s[x]
         t2 = t2s[x]
+
+        p1 = p1s[x]
+        p2 = p2s[x]
         print(paste0("Speaker ", s, "/", length(l1), ", Segment ", x, "/", length(t1s), " - t1:", t1, "|t2:", t2))
 
         t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
@@ -316,14 +356,21 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
         t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
         t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
 
+        p1 = substring(p1, 1 + leading_sp, nchar(p1) - trailing_sp)
+        p2 = substring(p2, 1 + leading_sp, nchar(p2) - trailing_sp)
+
         t1_list = strsplit(t1, "")[[1]]
         t2_list = strsplit(t2, "")[[1]]
+
+        p1_list = strsplit(p1, "")[[1]]
+        p2_list = strsplit(p2, "")[[1]]
+
         if(all(t1_list == " ")){ #No need to consider transposing\
           for(i in which(t2_list != " ")){
             cost = cost + m[which(order == " "), which(order == t2_list[i])]
             actions = actions + 1
 
-            new_row = c("Substitution", " ", t2_list[i], 2)
+            new_row = c("Substitution", " ", t2_list[i], 2,p1_list[i],p2_list[i])
             record = rbind(record,new_row)
           }
         } else if(all(t2_list == " ")){
@@ -331,23 +378,23 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
             cost = cost + m[which(order == t1_list[i]), which(order == " ")]
             actions = actions + 1
 
-            new_row = c("Substitution",t1_list[i], " ", 2)
+            new_row = c("Substitution",t1_list[i], " ", 2,p1_list[i],p2_list[i])
             record = rbind(record,new_row)
           }
         } else {
-          parSimResult = parSimV3(t1,t2,m,order,transCost)
+          parSimResult = parSimV3(t1,t2,m,order,transCost,p1,p2)
           cost = cost + parSimResult[[1]]
           actions = actions + parSimResult[[2]]  # result of cost and record between two fixed boundaries
 
           segRecord = cbind(data.frame(parSimResult[3:5]), 2)
-          colnames(segRecord) = c("type", "e1", "e2", "pass")
+          colnames(segRecord) = c("type", "e1", "e2", "pass","pos1","pos2")
           record = rbind(record,segRecord)
         }
       }
     }
   }
 
-  colnames(record) = c("type", "e1", "e2", "pass")
+  colnames(record) = c("type", "e1", "e2", "pass","pos1","pos2")
 
   record = record %>% mutate(postTranspose = (pass == 2 & type == "Substitution" & e1 != " " & e2 != " ")) %>%
     select(-pass)
