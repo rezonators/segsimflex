@@ -43,6 +43,7 @@ calCostNoTrans <- function(l1,l2, m, order){
 
 parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0,p1,p2){
   r = data.frame()
+  print(costSoFar)
   if(costSoFar < max){
     t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
     t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
@@ -55,8 +56,8 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
     t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
     t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
 
-    p1 = p1[1 + leading_sp: length(p1) - trailing_sp]
-    p2 = p2[1 + leading_sp: length(p2) - trailing_sp]
+    p1 = p1[(1 + leading_sp): (length(p1) - trailing_sp)]
+    p2 = p2[(1 + leading_sp): (length(p2) - trailing_sp)]
 
     indent = rep(">", cumulActions) %>% paste0(collapse="")
     print(paste0(indent, "t1:'", t1, "'; t2:'", t2, "'; Max:", max, "; costSoFar:", costSoFar, "; cumulActions:", cumulActions))
@@ -126,9 +127,9 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           t2_p1 = substring(t2, 1, matches[1] - 1)
           t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
 
-          p1_p1 = p1[1: matches[1] - 1]
+          p1_p1 = p1[1: (matches[1] - 1)]
           p1_p2 = p1[matches[1] + 1: nchar(t1)]
-          p2_p1 = p2[1: matches[1] - 1]
+          p2_p1 = p2[1: (matches[1] - 1)]
           p2_p2 = p2[matches[1] + 1: nchar(t2)]
 
           part1=parSimV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p1,p2_p1)
@@ -356,8 +357,8 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
         t1 = substring(t1, 1 + leading_sp, nchar(t1) - trailing_sp)
         t2 = substring(t2, 1 + leading_sp, nchar(t2) - trailing_sp)
 
-        p1 = p1[1 + leading_sp: nchar(p1) - trailing_sp]
-        p2 = p2[1 + leading_sp: nchar(p2) - trailing_sp]
+        p1 = p1[(1 + leading_sp): (length(p1) - trailing_sp)]
+        p2 = p2[(1 + leading_sp): (length(p2) - trailing_sp)]
 
         t1_list = strsplit(t1, "")[[1]]
         t2_list = strsplit(t2, "")[[1]]
@@ -382,11 +383,11 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
             record = rbind(record,new_row)
           }
         } else {
-          parSimResult = parSimV3(t1,t2,m,order,transCost,p1,p2)
+          parSimResult = parSimV3(t1,t2,m,order,transCost,p1 = p1,p2 = p2)
           cost = cost + parSimResult[[1]]
           actions = actions + parSimResult[[2]]  # result of cost and record between two fixed boundaries
 
-          segRecord = cbind(data.frame(parSimResult[3:5]), 2)
+          segRecord = cbind(data.frame(parSimResult[3:7]), 2)
           colnames(segRecord) = c("type", "e1", "e2", "pass","pos1","pos2")
           record = rbind(record,segRecord)
         }
