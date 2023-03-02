@@ -41,7 +41,7 @@ calCostNoTrans <- function(l1,l2, m, order){
 }
 
 
-parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0,p1,p2){
+parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0,p1,p2){
   r = data.frame()
   print(costSoFar)
   if(costSoFar < max){
@@ -99,7 +99,7 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
       }
     }else{
       if (e1==e2){
-        result = parSimV3(s1,s2,m, order, transCost, max, costSoFar, cumulActions,s1p,s2p)
+        result = parDistV3(s1,s2,m, order, transCost, max, costSoFar, cumulActions,s1p,s2p)
       }else{
         if(e1!=" " & e2!=" "){
           #Reason why line below is commented out:
@@ -111,7 +111,7 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           r = rbind(r,new_row)
 
           opCost = m[which (order == e1),which (order == e2)]
-          partialResult = parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions,s1p,s2p)
+          partialResult = parDistV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions,s1p,s2p)
           if(!any(is.na(partialResult))){
             result =c(opCost+partialResult[[1]], partialResult[[2]], r)
           } else result = NA
@@ -132,8 +132,8 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
           p2_p1 = p2[1: (matches[1] - 1)]
           p2_p2 = p2[matches[1] + 1: nchar(t2)]
 
-          part1=parSimV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p1,p2_p1)
-          part2=parSimV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p2,p2_p2)
+          part1=parDistV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p1,p2_p1)
+          part2=parDistV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p2,p2_p2)
 
           r= rbind(r, part1[3], part2[3])
 
@@ -154,7 +154,7 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
 
             new_row_1 = c("Substitution", e1, e2, 2, e1p, e1p)
             r= rbind(r,new_row_1)
-            partialresult_1=parSimV3(s1,s2,m,order, transCost, max,
+            partialresult_1=parDistV3(s1,s2,m,order, transCost, max,
                                      costSoFar + m[which (order == e1),which (order == e2)], cumulActions,s1p,s2p)
             if(!any(is.na(partialresult_1))){
               option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[[1]],partialresult_1[[2]],r)
@@ -163,7 +163,7 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             if (e1==" ") {temp=e2} else {temp=e1}
             new_row_2 = c("Transposition", e1, e2, 2, temp, temp)
             r= rbind(r,new_row_2)
-            partialresult_2= parSimV3(t1, tback,m, order, transCost,
+            partialresult_2= parDistV3(t1, tback,m, order, transCost,
                                       max = min(max, costSoFar + option1[[1]], na.rm = T),
                                       costSoFar + transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1),
                                       cumulActions,p1, pback)
@@ -185,7 +185,7 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
 
             new_row_1 = c("Substitution", e1, e2, 2, e1p, e1p)
             r= rbind(r,new_row_1)
-            partialresult_1 =parSimV3(s1,s2,m,order, transCost,max,
+            partialresult_1 =parDistV3(s1,s2,m,order, transCost,max,
                                       costSoFar + m[which (order == e1),which (order == e2)], cumulActions,s1p,s2p)
             if(!any(is.na(partialresult_1))){
               option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[[1]], partialresult_1[[2]],r)
@@ -194,7 +194,7 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             if (e1==" ") {temp=e2} else {temp=e1}
             new_row_2 = c("Transposition", e1, e2,2,temp,temp)
             r= rbind(r,new_row_2)
-            partialresult_2 = parSimV3(t1,tfor,m,order, transCost,
+            partialresult_2 = parDistV3(t1,tfor,m,order, transCost,
                                       max = min(max, costSoFar + option1[[1]], na.rm = T),
                                       costSoFar + transCost[which(order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1),
                                       cumulActions,p1,pfor)
@@ -215,7 +215,7 @@ parSimV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumul
             new_row_1 = c("Substitution", e1, e2,e1p,e1p)
             r= rbind(r,new_row_1)
             opCost = m[which (order == e1),which (order == e2)]
-            partialResult= parSimV3(s1,s2,m, order, transCost, max, costSoFar + opCost,
+            partialResult= parDistV3(s1,s2,m, order, transCost, max, costSoFar + opCost,
                      cumulActions,p1,p2)
             if(!any(is.na(partialResult))){
               result =(c(opCost+partialResult[[1]], partialResult[[2]],r))
@@ -329,7 +329,7 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
     colnames(record) = c("type", "e1", "e2", "pass", "pos1","pos2")
 
     #Now go through each of those non-matching transitional areas
-    #And call parSim
+    #And call parDist
     if(length(transAreas1) > 0){
       t1s = sapply(transAreas1, paste0, collapse = "")
       t2s = sapply(transAreas2, paste0, collapse = "")
@@ -383,11 +383,11 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
             record = rbind(record,new_row)
           }
         } else {
-          parSimResult = parSimV3(t1,t2,m,order,transCost,p1 = p1,p2 = p2)
-          cost = cost + parSimResult[[1]]
-          actions = actions + parSimResult[[2]]  # result of cost and record between two fixed boundaries
+          parDistResult = parDistV3(t1,t2,m,order,transCost,p1 = p1,p2 = p2)
+          cost = cost + parDistResult[[1]]
+          actions = actions + parDistResult[[2]]  # result of cost and record between two fixed boundaries
 
-          segRecord = cbind(data.frame(parSimResult[3:7]), 2)
+          segRecord = cbind(data.frame(parDistResult[3:7]), 2)
           colnames(segRecord) = c("type", "e1", "e2", "pass","pos1","pos2")
           record = rbind(record,segRecord)
         }

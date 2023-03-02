@@ -10,7 +10,7 @@ source("R/helperFunctions.R")
 
 
 
-parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0){
+parDist1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0){
   if(costSoFar < max){
     t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
     t2_trailing_sp = str_extract_last(t2, " +") %>% nchar %>% replace_na(0)
@@ -55,7 +55,7 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
       }
     }else{
       if (e1==e2){
-        result = parSim1V3(s1,s2,m, order, transCost, max, costSoFar, cumulActions)
+        result = parDist1V3(s1,s2,m, order, transCost, max, costSoFar, cumulActions)
       }else{
         if(e1!=" " & e2!=" "){
           #Reason why line below is commented out:
@@ -63,7 +63,7 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
           #There must have been a transposition already.
           #cumulActions = cumulActions + 1
           opCost = m[which (order == e1),which (order == e2)]
-          result =(c(opCost, 0) + parSim1V3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions))
+          result =(c(opCost, 0) + parDist1V3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions))
         } else if(length(matches) > 0){
           opCost = m[which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
           #Reason why line below is commented out:
@@ -75,16 +75,16 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
           t2_p1 = substring(t2, 1, matches[1] - 1)
           t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
           result =(c(opCost, -cumulActions) + #Because we're adding tgt two operations, there will be an extra copy of cumulActions, which we delete here
-                     parSim1V3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions) +
-                     parSim1V3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions))
+                     parDist1V3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions) +
+                     parDist1V3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions))
         } else {
           if (!is.na(t1_first_nonsp) & t1_first_nonsp > 1){ #Moving the first char of t2 back or substituting
             cumulActions = cumulActions + 1
             option1 = c(m[which (order == e1),which (order == e2)], 0) +
-              parSim1V3(s1,s2,m,order, transCost, max,
+              parDist1V3(s1,s2,m,order, transCost, max,
                         costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
             option2 = c(transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1), 0) +
-              parSim1V3(t1,tback,m, order, transCost,
+              parDist1V3(t1,tback,m, order, transCost,
                         max = min(max, costSoFar + option1[1], na.rm = T),
                         costSoFar + transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1), cumulActions)
             if(any(is.na(option1)) & any(is.na(option2))){
@@ -97,10 +97,10 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
           } else if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1) { #Moving the first nonspace char of t2 front or substituting
             cumulActions = cumulActions + 1
             option1 = c(m[which (order == e1),which (order == e2)], 0) +
-              parSim1V3(s1,s2,m,order, transCost,max,
+              parDist1V3(s1,s2,m,order, transCost,max,
                         costSoFar + m[which (order == e1),which (order == e2)], cumulActions)
             option2 = c(transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1), 0) +
-              parSim1V3(t1,tfor,m,order, transCost,
+              parDist1V3(t1,tfor,m,order, transCost,
                         max = min(max, costSoFar + option1[1], na.rm = T),
                         costSoFar + transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1), cumulActions)
             if(any(is.na(option1)) & any(is.na(option2))){
@@ -113,7 +113,7 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
           } else {
             cumulActions = cumulActions + 1
             opCost = m[which (order == e1),which (order == e2)]
-            result =(c(opCost, 0) + parSim1V3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions))
+            result =(c(opCost, 0) + parDist1V3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions))
           }
         }
       }
@@ -127,7 +127,7 @@ parSim1V3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
   } else NA
 }  # input two sub boundary list
 
-parSim1V4 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0, prevResultsEnv = NA){
+parDist1V4 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0, prevResultsEnv = NA){
   origCumulActions = cumulActions
   if(costSoFar < max){
     prevResultExists = F
@@ -180,7 +180,7 @@ parSim1V4 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
         }
       }else{
         if (e1==e2){
-          result = parSim1V4(s1,s2,m, order, transCost, max, costSoFar, cumulActions, prevResultsEnv)
+          result = parDist1V4(s1,s2,m, order, transCost, max, costSoFar, cumulActions, prevResultsEnv)
         }else{
           if(e1!=" " & e2!=" "){
             #Reason why line below is commented out:
@@ -188,7 +188,7 @@ parSim1V4 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
             #There must have been a transposition already.
             #cumulActions = cumulActions + 1
             opCost = m[which (order == e1),which (order == e2)]
-            result =(c(opCost, 0) + parSim1V4(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv))
+            result =(c(opCost, 0) + parDist1V4(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv))
           } else if(length(matches) > 0){
             opCost = m[which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
             #Reason why line below is commented out:
@@ -200,16 +200,16 @@ parSim1V4 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
             t2_p1 = substring(t2, 1, matches[1] - 1)
             t2_p2 = substring(t2, matches[1] + 1, nchar(t2))
             result =(c(opCost, -cumulActions) + #Because we're adding tgt two operations, there will be an extra copy of cumulActions, which we delete here
-                       parSim1V4(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv) +
-                       parSim1V4(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv))
+                       parDist1V4(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv) +
+                       parDist1V4(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv))
           } else {
             if (!is.na(t1_first_nonsp) & t1_first_nonsp > 1){ #Moving the first char of t2 back or substituting
               cumulActions = cumulActions + 1
               option1 = c(m[which (order == e1),which (order == e2)], 0) +
-                parSim1V4(s1,s2,m,order, transCost, max,
+                parDist1V4(s1,s2,m,order, transCost, max,
                           costSoFar + m[which (order == e1),which (order == e2)], cumulActions, prevResultsEnv)
               option2 = c(transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1), 0) +
-                parSim1V4(t1,tback,m, order, transCost,
+                parDist1V4(t1,tback,m, order, transCost,
                           max = min(max, costSoFar + option1[1], na.rm = T),
                           costSoFar + transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1), cumulActions, prevResultsEnv)
               if(any(is.na(option1)) & any(is.na(option2))){
@@ -222,10 +222,10 @@ parSim1V4 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
             } else if(!is.na(t2_first_nonsp) & t2_first_nonsp > 1) { #Moving the first nonspace char of t2 front or substituting
               cumulActions = cumulActions + 1
               option1 = c(m[which (order == e1),which (order == e2)], 0) +
-                parSim1V4(s1,s2,m,order, transCost,max,
+                parDist1V4(s1,s2,m,order, transCost,max,
                           costSoFar + m[which (order == e1),which (order == e2)], cumulActions, prevResultsEnv)
               option2 = c(transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1), 0) +
-                parSim1V4(t1,tfor,m,order, transCost,
+                parDist1V4(t1,tfor,m,order, transCost,
                           max = min(max, costSoFar + option1[1], na.rm = T),
                           costSoFar + transCost[which (order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1), cumulActions, prevResultsEnv)
               if(any(is.na(option1)) & any(is.na(option2))){
@@ -238,7 +238,7 @@ parSim1V4 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
             } else {
               cumulActions = cumulActions + 1
               opCost = m[which (order == e1),which (order == e2)]
-              result =(c(opCost, 0) + parSim1V4(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv))
+              result =(c(opCost, 0) + parDist1V4(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv))
             }
           }
         }
@@ -374,7 +374,7 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
     transAreas2 = transAreas2[!spaceOnly]
 
     #Now go through each of those non-matching transitional areas
-    #And call parSim
+    #And call parDist
     if(length(transAreas1) > 0){
       t1s = sapply(transAreas1, paste0, collapse = "")
       t2s = sapply(transAreas2, paste0, collapse = "")
@@ -411,9 +411,9 @@ calCost1V2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
         } else {
           resultEnv = new.env()
           resultEnv$result = list()
-          parSimResult = parSim1V4(t1,t2,m,order,transCost,prevResultsEnv = resultEnv)
-          cost = cost + parSimResult[1]
-          actions = actions + parSimResult[2]  # result of cost and record between two fixed boundaries
+          parDistResult = parDist1V4(t1,t2,m,order,transCost,prevResultsEnv = resultEnv)
+          cost = cost + parDistResult[1]
+          actions = actions + parDistResult[2]  # result of cost and record between two fixed boundaries
         }
       }
     }
