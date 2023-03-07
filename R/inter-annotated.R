@@ -5,7 +5,7 @@ library(tidyverse)
 library(dplyr)
 ## only need to change file name in line 406 407
 
-puncNum <- function(bd, order){ # Used to get the number of each kind's punctuation in data.bd is the number of punctuation
+numBd <- function(bd, order){ # Used to get the number of each kind's boundry in data.bd is the number of boundry
   result = rep(0,length(order))
   n=0  # number of boundries in a list
   l=0  # temperate variable for counting
@@ -40,39 +40,39 @@ puncNum <- function(bd, order){ # Used to get the number of each kind's punctuat
 
 
 }
-gePlace <- function(num,number){ # generate a place to insert punctuation
+gePlace <- function(num,number){ # generate a place to insert boundry
   # creating a list with sample function
   lst = list(sample(1:num, size = number, replace = T))
   return (lst)
 }
-insertPunc <- function(place,puncnum,number,num,bd){ #insert punctuation based on gePlace
-  puncList = rep(" ",num)
+insertBd <- function(place,numBd,number,num,bd){ #insert boundry based on gePlace
+  boundryList = rep(" ",num)
   for (i in seq(1,num)){#use lengths to get the length of each data in ist
     for (j in seq(1,length(bd))){
       if (i %in% data1Place[[1]]){
         prob = floor(runif(1,min=1,max=number))
-        if (1<=prob && prob<puncnum[1]){ #if the number is in range of comma
+        if (1<=prob && prob<numBd[1]){ #if the number is in range of comma
           data[[j]][] = ","
         }
-        if (puncnum[1]<=prob && prob<(puncnum[2]+puncnum[1])){ #if the number is in range of period
-          puncList[i] = "."
+        if (numBd[1]<=prob && prob<(numBd[2]+numBd[1])){ #if the number is in range of period
+          boundryList[i] = "."
         }
-        if ((puncnum[2]+puncnum[1])<=prob && prob<(puncnum[2]+puncnum[3]+puncnum[1])){ #if the number is in range of ?
-          puncList[i] = "?"
+        if ((numBd[2]+numBd[1])<=prob && prob<(numBd[2]+numBd[3]+numBd[1])){ #if the number is in range of ?
+          boundryList[i] = "?"
         }
-        if ((puncnum[2]+puncnum[3]+puncnum[1])<=prob && prob<(puncnum[2]+puncnum[3]+puncnum[4]+puncnum[1])){ #if the number is in range of ?
-          puncList[i] = "+"
+        if ((numBd[2]+numBd[3]+numBd[1])<=prob && prob<(numBd[2]+numBd[3]+numBd[4]+numBd[1])){ #if the number is in range of ?
+          boundryList[i] = "+"
         }
       }
     }
   }
-  puncList = paste(puncList, collapse = "")
-  return (puncList)
+  boundryList = paste(boundryList, collapse = "")
+  return (boundryList)
 }
-speaker_num <- function(bd,dataPlace,number,puncnum,num,order){ #generate random puncList
+speaker_num <- function(bd,dataPlace,number,numBd,num,order){ #generate random boundryList
   #allP=c(",",".","?","+")
-  #puncList = rep(" ",num)
-  cumNumList = c(1, cumsum(puncnum))
+  #boundryList = rep(" ",num)
+  cumNumList = c(1, cumsum(numBd))
   for (i in seq(1,length(bd))){
     for (j in seq(1,nchar(bd[[i]]))){
       prob = floor(runif(1,min=1,max=num))
@@ -82,16 +82,16 @@ speaker_num <- function(bd,dataPlace,number,puncnum,num,order){ #generate random
             substring(bd[[i]],j,j) = order[k]
           }
       }
-      # if (1<=prob && prob<puncnum[1]){#if the number is in range of comma
+      # if (1<=prob && prob<numBd[1]){#if the number is in range of comma
       #   substring(bd[[i]],j,j) = ","
       # }
-      # if (puncnum[1]<=prob && prob<(puncnum[2]+puncnum[1])){ #if the number is in range of period
+      # if (numBd[1]<=prob && prob<(numBd[2]+numBd[1])){ #if the number is in range of period
       #   substring(bd[[i]],j,j) = "."
       # }
-      # if ((puncnum[2]+puncnum[1])<=prob && prob<(puncnum[2]+puncnum[3]+puncnum[1])){ #if the number is in range of ?
+      # if ((numBd[2]+numBd[1])<=prob && prob<(numBd[2]+numBd[3]+numBd[1])){ #if the number is in range of ?
       #   substring(bd[[i]],j,j) = "."
       # }
-      # if ((puncnum[2]+puncnum[3]+puncnum[1])<=prob && prob<(puncnum[2]+puncnum[3]+puncnum[4]+puncnum[1])){ #if the number is in range of +
+      # if ((numBd[2]+numBd[3]+numBd[1])<=prob && prob<(numBd[2]+numBd[3]+numBd[4]+numBd[1])){ #if the number is in range of +
       #   substring(bd[[i]],j,j) = "."
       # }
     }
@@ -109,8 +109,8 @@ createBD <-function(d, boundaries,noboundary){
 
 #' Inter-annotator agreement
 #'
-#' @param data1 annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU
-#' @param data2 annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU
+#' @param data1 annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundry' are IU boundaries and should go to the end of each IU
+#' @param data2 annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundry' are IU boundaries and should go to the end of each IU
 #' @param K Number of iterations
 #' @param ... Parameters passed to calcost1V2
 #'
@@ -154,13 +154,13 @@ IAA <- function(data1,data2, record = FALSE, m = NA,
   data1Num = bdNum(bd1)  # calculate the number of boundries for a file
   data2Num = bdNum(bd2)  # calculate the number of boundries for a file
 
-  data1Puncnum = puncNum(bd1, order)#number of punctuation in each kind
-  data1Number = sum(data1Puncnum) #get total number of punctuation
-  data1Place = gePlace(data1Num, data1Number)#num is total number of boundry, number is number of punctuation
+  data1numBd = numBd(bd1, order)#number of boundry in each kind
+  data1Number = sum(data1numBd) #get total number of boundry
+  data1Place = gePlace(data1Num, data1Number)#num is total number of boundry, number is number of boundry
 
-  data2Puncnum = puncNum(bd2, order)
-  data2Number = sum(data2Puncnum) #get total number of
-  data2Place = gePlace(data2Num, data2Number)#num is total number of boundry, number is number of punctuation
+  data2numBd = numBd(bd2, order)
+  data2Number = sum(data2numBd) #get total number of
+  data2Place = gePlace(data2Num, data2Number)#num is total number of boundry, number is number of boundry
 
   #main function
   tsim_N = numeric(K)
@@ -168,9 +168,9 @@ IAA <- function(data1,data2, record = FALSE, m = NA,
   bdNumber=bdNumV2(bd1)
   for (i in seq(1,K)){
     message(paste0("Doing iteration ", i))
-    dataPunc1 = speaker_num(bd1,data1Place,data1Number,data1Puncnum,data1Num,order)
-    dataPunc2 = speaker_num(bd2,data2Place,data2Number,data2Puncnum,data2Num,order)
-    cost = suppressMessages(calCost1V2(dataPunc1,dataPunc2, m, order, transCost))#If only need to use calculate cost without using simularity score, use calCost1
+    dataBd1 = speaker_num(bd1,data1Place,data1Number,data1numBd,data1Num,order)
+    dataBd2 = speaker_num(bd2,data2Place,data2Number,data2numBd,data2Num,order)
+    cost = suppressMessages(calCost1V2(dataBd1,dataBd2, m, order, transCost))#If only need to use calculate cost without using simularity score, use calCost1
     sim_N =simScore(bdNumber,cost[1])
     sim_B =simScore(cost[2],cost[1])
     tsim_N[i] = sim_N

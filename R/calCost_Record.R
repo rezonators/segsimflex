@@ -9,10 +9,10 @@ source("R/helperFunctions.R")
 
 # input two sub boundary list
 # without trans
-calCostNoTrans <- function(l1,l2, m, order){
+calCostNoTrans <- function(l1,l2, m_sim , order){
   actions = 0
   record=data.frame()
-  m=1-m
+  m_cost =1-m_sim
   if (length(l1)!=length(l2)){
     return ("different speakers try again")
   }  # check speaker num
@@ -28,7 +28,7 @@ calCostNoTrans <- function(l1,l2, m, order){
       e1 =substring(l1[s],i,i)
       e2 =substring(l2[s],i,i)
       if (e1!=e2){
-        cost=cost+(m[which (order == e1),which (order == e2)])
+        cost=cost+(m_cost [which (order == e1),which (order == e2)])
         actions=actions+1
         new_row = c("Substitution", e1, e2, i)
         record = rbind(record,new_row)
@@ -41,7 +41,7 @@ calCostNoTrans <- function(l1,l2, m, order){
 }
 
 
-parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumulActions = 0,p1,p2){
+parDistV3 <- function(t1,t2, m_cost , order, transCost, max = Inf, costSoFar = 0, cumulActions = 0,p1,p2){
   r = data.frame()
   print(costSoFar)
   if(costSoFar < max){
@@ -95,11 +95,11 @@ parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
         cumulActions = cumulActions + 1
         new_row = c("Substitution", e1, e2, 2, e1p, e1p)
         r = rbind(r,new_row)
-        result = c(m[which (order == e1),which (order == e2)], cumulActions,r)
+        result = c(m_cost [which (order == e1),which (order == e2)], cumulActions,r)
       }
     }else{
       if (e1==e2){
-        result = parDistV3(s1,s2,m, order, transCost, max, costSoFar, cumulActions,s1p,s2p)
+        result = parDistV3(s1,s2,m_cost , order, transCost, max, costSoFar, cumulActions,s1p,s2p)
       }else{
         if(e1!=" " & e2!=" "){
           #Reason why line below is commented out:
@@ -110,14 +110,14 @@ parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
           new_row = c("Substitution", e1, e2, 2, e1p, e1p)
           r = rbind(r,new_row)
 
-          opCost = m[which (order == e1),which (order == e2)]
-          partialResult = parDistV3(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions,s1p,s2p)
+          opCost = m_cost [which (order == e1),which (order == e2)]
+          partialResult = parDistV3(s1,s2,m_cost , order, transCost, max, costSoFar + opCost, cumulActions,s1p,s2p)
           if(!any(is.na(partialResult))){
             result =c(opCost+partialResult[[1]], partialResult[[2]], r)
           } else result = NA
 
         } else if(length(matches) > 0){
-          opCost = m[which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
+          opCost = m_cost [which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
           #Reason why line below is commented out:
           #At this stage if there's still such substitution,
           #There must have been a transposition already.
@@ -132,8 +132,8 @@ parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
           p2_p1 = p2[1: (matches[1] - 1)]
           p2_p2 = p2[matches[1] + 1: nchar(t2)]
 
-          part1=parDistV3(t1_p1,t2_p1,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p1,p2_p1)
-          part2=parDistV3(t1_p2,t2_p2,m, order, transCost, max, costSoFar + opCost, cumulActions,p1_p2,p2_p2)
+          part1=parDistV3(t1_p1,t2_p1,m_cost , order, transCost, max, costSoFar + opCost, cumulActions,p1_p1,p2_p1)
+          part2=parDistV3(t1_p2,t2_p2,m_cost , order, transCost, max, costSoFar + opCost, cumulActions,p1_p2,p2_p2)
 
           r= rbind(r, part1[3], part2[3])
 
@@ -154,16 +154,16 @@ parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
 
             new_row_1 = c("Substitution", e1, e2, 2, e1p, e1p)
             r= rbind(r,new_row_1)
-            partialresult_1=parDistV3(s1,s2,m,order, transCost, max,
-                                     costSoFar + m[which (order == e1),which (order == e2)], cumulActions,s1p,s2p)
+            partialresult_1=parDistV3(s1,s2,m_cost ,order, transCost, max,
+                                     costSoFar + m_cost [which (order == e1),which (order == e2)], cumulActions,s1p,s2p)
             if(!any(is.na(partialresult_1))){
-              option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[[1]],partialresult_1[[2]],r)
+              option1 = c(m_cost [which (order == e1),which (order == e2)]+partialresult_1[[1]],partialresult_1[[2]],r)
             } else option1 = NA
 
             if (e1==" ") {temp=e2} else {temp=e1}
             new_row_2 = c("Transposition", e1, e2, 2, temp, temp)
             r= rbind(r,new_row_2)
-            partialresult_2= parDistV3(t1, tback,m, order, transCost,
+            partialresult_2= parDistV3(t1, tback,m_cost , order, transCost,
                                       max = min(max, costSoFar + option1[[1]], na.rm = T),
                                       costSoFar + transCost[which (order == t1_list[t1_first_nonsp])] * (t1_first_nonsp - 1),
                                       cumulActions,p1, pback)
@@ -185,16 +185,16 @@ parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
 
             new_row_1 = c("Substitution", e1, e2, 2, e1p, e1p)
             r= rbind(r,new_row_1)
-            partialresult_1 =parDistV3(s1,s2,m,order, transCost,max,
-                                      costSoFar + m[which (order == e1),which (order == e2)], cumulActions,s1p,s2p)
+            partialresult_1 =parDistV3(s1,s2,m_cost ,order, transCost,max,
+                                      costSoFar + m_cost [which (order == e1),which (order == e2)], cumulActions,s1p,s2p)
             if(!any(is.na(partialresult_1))){
-              option1 = c(m[which (order == e1),which (order == e2)]+partialresult_1[[1]], partialresult_1[[2]],r)
+              option1 = c(m_cost [which (order == e1),which (order == e2)]+partialresult_1[[1]], partialresult_1[[2]],r)
             } else option1 = NA
 
             if (e1==" ") {temp=e2} else {temp=e1}
             new_row_2 = c("Transposition", e1, e2,2,temp,temp)
             r= rbind(r,new_row_2)
-            partialresult_2 = parDistV3(t1,tfor,m,order, transCost,
+            partialresult_2 = parDistV3(t1,tfor,m_cost ,order, transCost,
                                       max = min(max, costSoFar + option1[[1]], na.rm = T),
                                       costSoFar + transCost[which(order == t2_list[t2_first_nonsp])] * (t2_first_nonsp - 1),
                                       cumulActions,p1,pfor)
@@ -214,8 +214,8 @@ parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
             cumulActions = cumulActions + 1
             new_row_1 = c("Substitution", e1, e2,e1p,e1p)
             r= rbind(r,new_row_1)
-            opCost = m[which (order == e1),which (order == e2)]
-            partialResult= parDistV3(s1,s2,m, order, transCost, max, costSoFar + opCost,
+            opCost = m_cost [which (order == e1),which (order == e2)]
+            partialResult= parDistV3(s1,s2,m_cost , order, transCost, max, costSoFar + opCost,
                      cumulActions,p1,p2)
             if(!any(is.na(partialResult))){
               result =(c(opCost+partialResult[[1]], partialResult[[2]],r))
@@ -235,7 +235,7 @@ parDistV3 <- function(t1,t2, m, order, transCost, max = Inf, costSoFar = 0, cumu
 
 
 #calCost without report - alternative by Ryan
-calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
+calCostV2 <- function(l1,l2,m_sim=matrix(data =c(1,0,0,0,0,0,0,
                                               0,1,0,0,0,0,0,
                                               0,0,1,0,0,0,0,
                                               0,0,0,1,0,0,0,
@@ -247,7 +247,7 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
   record = data.frame()
   subCost=1  # pre-set substitution cost
   # transCost=0.5  # pre-set transition cost of one space
-  m=1-m #Similaritie sto differences
+  m_cost =1-m_sim #Similaritie sto differences
 
   if (length(l1)!=length(l2)){
     stop ("different speakers try again")
@@ -276,7 +276,7 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
     fullMatches = currBlistList1[currBlistList1 == currBlistList2 & currBlistList1 != " "]
 
     if(length(which(substPos)) > 0){
-      cost = cost + sapply(which(substPos), function(x) m[which(currBlistList1[x] == order), which(currBlistList2[x] == order)]) %>% sum
+      cost = cost + sapply(which(substPos), function(x) m_cost [which(currBlistList1[x] == order), which(currBlistList2[x] == order)]) %>% sum
 
       for (pos in which(substPos)){
         new_row = c("Substitution", substring(currBlist1, pos, pos), substring(currBlist2, pos, pos), 1, pos, pos)
@@ -368,7 +368,7 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
 
         if(all(t1_list == " ")){ #No need to consider transposing\
           for(i in which(t2_list != " ")){
-            cost = cost + m[which(order == " "), which(order == t2_list[i])]
+            cost = cost + m_cost [which(order == " "), which(order == t2_list[i])]
             actions = actions + 1
 
             new_row = c("Substitution", " ", t2_list[i], 2,p1_list[i],p2_list[i])
@@ -376,14 +376,14 @@ calCostV2 <- function(l1,l2,m=matrix(data =c(1,0,0,0,0,0,0,
           }
         } else if(all(t2_list == " ")){
           for(i in which(t1_list != " ")){
-            cost = cost + m[which(order == t1_list[i]), which(order == " ")]
+            cost = cost + m_cost [which(order == t1_list[i]), which(order == " ")]
             actions = actions + 1
 
             new_row = c("Substitution",t1_list[i], " ", 2,p1_list[i],p2_list[i])
             record = rbind(record,new_row)
           }
         } else {
-          parDistResult = parDistV3(t1,t2,m,order,transCost,p1 = p1,p2 = p2)
+          parDistResult = parDistV3(t1,t2,m_cost ,order,transCost,p1 = p1,p2 = p2)
           cost = cost + parDistResult[[1]]
           actions = actions + parDistResult[[2]]  # result of cost and record between two fixed boundaries
 

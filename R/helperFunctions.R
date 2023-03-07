@@ -71,10 +71,10 @@ sepSpeaker <- function(d){
 # Generate boundary lists
 # return one list of boundary
 # + for --
-# ; for IU boundary without a punctuation
+# ; for IU boundary without a tempBduation
 genBd <- function(d,sep,boundaries,noboundary){
 
-  punct_regex = paste0(" (", paste0(boundaries, collapse = "|"), ")")
+  bd_regex = paste0(" (", paste0(boundaries, collapse = "|"), ")")
   num_speaker=length(levels(as.factor(d$Speaker))) # number of speakers
   # remove empty space before punc
   for (s in seq(1,num_speaker)){  # for each speaker
@@ -171,7 +171,7 @@ bdNumV2 = function(bd){
 
 # input genBd
 # calculate sim score
-simScore <- function(n, cost){
+costToScore <- function(n, cost){
   return((n-cost)/(n))
 }  # input bdNum, calCost
 # check difference between two bdlists
@@ -198,9 +198,9 @@ checkDiff <- function(l1,l2){
 
 genBdV2 = function(d, boundaries, noboundary){
   boundary_regex = paste0(" (", sapply(boundaries, function(b) paste0("\\", strsplit(b, ""), collapse = "")) %>% paste0(collapse = "|"), ")")
-  d = d %>% mutate(hasPunct = str_ends(Utterance, boundary_regex))
+  d = d %>% mutate(hasBd = str_ends(Utterance, boundary_regex))
   d = d %>% mutate(Utterance = case_when(
-    !hasPunct ~ paste0(Utterance, " ", noboundary),
+    !hasBd ~ paste0(Utterance, " ", noboundary),
     T ~ Utterance
   ))
 
@@ -211,16 +211,16 @@ genBdV2 = function(d, boundaries, noboundary){
 
   boundaries_perline = d %>%
     mutate(spaces = str_extract_all(Utterance, " ") %>% sapply(function(x) paste0(x, collapse = "")),
-           punct = substring(Utterance, nchar(Utterance), nchar(Utterance))) %>%
-    mutate(bounds = paste0(spaces, punct)) %>%
+           tempBd = substring(Utterance, nchar(Utterance), nchar(Utterance))) %>%
+    mutate(bounds = paste0(spaces, tempBd)) %>%
     mutate(nobounds = nchar(bounds)) %>%
     mutate(nowords = strsplit(Utterance, " ") %>% sapply(length))
 
   # boundaries_perline %>% group_by(Speaker) %>%
   #   summarise(space_num = nchar(spaces) %>% sum(),
-  #             punct_num = n(),
+  #             tempBd_num = n(),
   #             toks_num = strsplit(Utterance, " ") %>% sapply(length) %>% sum) %>%
-  #   mutate(total_num = space_num + punct_num)
+  #   mutate(total_num = space_num + tempBd_num)
 
   bdlists = boundaries_perline %>% group_by(Speaker) %>% summarise(paste0(bounds, collapse = ""))
   bdlists = bdlists %>% as.matrix %>% t
