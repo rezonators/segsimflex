@@ -204,6 +204,7 @@ genBdV2 = function(d, boundaries, noboundary){
     T ~ Utterance
   ))
 
+  d= replace_multiBD(d, boundaries, noboundary)
   boundary_regex_all = paste0(" (", sapply(c(boundaries, noboundary), function(b) paste0("\\", strsplit(b, ""), collapse = "")) %>% paste0(collapse = "|"), ")")
 
   d = d %>%
@@ -244,3 +245,27 @@ expandTrans <- function (t,o){
     return (t)
   }
 }
+
+# convert hex to unicode
+hex.chr <- function(hex) {intToUtf8(paste0("0x", hex))}
+
+# replace multiboundry
+replace_multiBD <- function (d, boundaries, noboundary){
+  all_bd = c(boundaries, noboundary)
+  multibd = c()
+  for (i in all_bd){
+    if (length(i)>1){
+      multibd=c(multibd, i)
+    }
+  }
+  temp = 256
+  for (x in multibd){
+    for (i in seq(1,length(d$Utterance))){
+      d$Utterance[i]=gsub('--', hex.chr(as.hexmode(temp)), d$Utterance[i])
+    }
+    temp = temp+1
+  }
+  return (d)
+}
+
+hex.chr(as.hexmode(256))
