@@ -40,11 +40,13 @@ sim_Score<-function(d1,d2, record = FALSE, m = NA,
   }
 
   d1=reNA(d1) %>% reDS
+  d1=replace_multiBD(d1, boundaries, noboundary)
   se1=sepSpeaker(d1)
   #bdlist1=genBd(d1,se1,boundaries,noboundary)
   bdlist1=genBdV2(d1,boundaries,noboundary)
 
   d2=reNA(d2) %>% reDS
+  d2=replace_multiBD(d2, boundaries, noboundary)
   se2=sepSpeaker(d2)
   #bdlist2=genBd(d2,se2,boundaries,noboundary)
   bdlist2=genBdV2(d2,boundaries,noboundary)

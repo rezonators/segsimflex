@@ -261,11 +261,10 @@ replace_multiBD <- function (d, boundaries, noboundary){
   temp = 256
   for (x in multibd){
     for (i in seq(1,length(d$Utterance))){
-      d$Utterance[i]=gsub('--', hex.chr(as.hexmode(temp)), d$Utterance[i])
+      d$Utterance[i]=gsub(x, hex.chr(as.hexmode(temp)), d$Utterance[i])
     }
     temp = temp+1
   }
   return (d)
 }
 
-hex.chr(as.hexmode(256))
