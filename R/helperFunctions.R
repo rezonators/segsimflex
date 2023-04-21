@@ -1,10 +1,3 @@
-library(data.table)
-library(readr)
-library(reshape)
-library(tidyverse)
-library(dplyr)
-
-
 #Extract something at the end
 str_extract_last = function(strings, regex){
   contains = str_ends(strings, regex)

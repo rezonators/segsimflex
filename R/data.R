@@ -18,3 +18,12 @@
 #'   \item{Utterance}{The text of that unit.}
 #' }
 "sbc_iubound_prediction"
+
+
+
+
+#' IU segmentations of squared-numbered texts in the NCCU Taiwan Mandarin Corpus
+#'
+#' @format ## `nccu_squareno`
+#' A list of 7 items, each of which contains two items (annotations from each transcriber).
+"nccu_squareno"

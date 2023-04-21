@@ -8,8 +8,6 @@ rezTrans(inPath)
 }
 \arguments{
 \item{inPath}{The string of the path of the .rez file}
-
-\item{outPath}{The string of the path of the output csv file}
 }
 \value{
 A data frame that can be used for similarity score and inter-annotated agreement

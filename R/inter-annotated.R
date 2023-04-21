@@ -1,10 +1,3 @@
-library(data.table)
-library(readr)
-library(reshape)
-library(tidyverse)
-library(dplyr)
-## only need to change file name in line 406 407
-
 numBd <- function(bd, order){ # Used to get the number of each kind's boundary in data.bd is the number of boundary
   result = rep(0,length(order))
   n=0  # number of boundries in a list

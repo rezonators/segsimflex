@@ -1,9 +1,3 @@
-library(data.table)
-library(readr)
-library(reshape)
-library(tidyverse)
-library(dplyr)
-
 # Replace -- to +
 # can only deal with single notes
 reDS <- function(d){

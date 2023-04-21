@@ -1,12 +1,3 @@
-library(readr)
-library(reshape)
-library(dplyr)
-
-source("R/preprocessing.R")
-source("R/calCost_noRecord.R")
-source("R/calCost_Record.R")
-source("R/helperFunctions.R")
-
 #' Similarity score calculation
 #'
 #' @param d1 A data.frame of the first annotator's annotation. Each line represents a segment. Space is used for tokenisation, which may be spaces in the case of intonation unit segmentation, turn constructional units for turn segmentation, and so on.
@@ -90,11 +81,3 @@ sim_Score<-function(d1,d2, record = FALSE, m = NA,
   }
 
 }
-
-
-
-#' IU segmentations of squared-numbered texts in the NCCU Taiwan Mandarin Corpus
-#'
-#' @format ## `nccu_squareno`
-#' A list of 7 items, each of which contains two items (annotations from each transcriber).
-"nccu_squareno"

@@ -4,15 +4,43 @@
 \alias{IAA}
 \title{Inter-annotator agreement}
 \usage{
-IAA(data1, data2)
+IAA(
+  d1,
+  d2,
+  record = FALSE,
+  m = NA,
+  transCost = 0.5,
+  boundaries = c(",", ".", "?", "-", "+"),
+  noboundary = ";",
+  trans = TRUE,
+  K = 100
+)
 }
 \arguments{
-\item{data1}{annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU}
+\item{d1}{A data.frame of the first annotator's annotation. Each line represents a segment. Space is used for tokenisation, which may be spaces in the case of intonation unit segmentation, turn constructional units for turn segmentation, and so on.}
 
-\item{data2}{annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'punctuation' are IU boundaries and should go to the end of each IU}
+\item{d2}{A data.frame of the second annotator's annotation, similar to `d1`.}
+
+\item{record}{Whether you want to get the step of transformation (slow process!).}
+
+\item{m}{A similarity matrix to customize substitution cost. The size of the matrix should either be the number of boundary types in `boundaries` plus two, if `noboundary` has been set, or the number of boundary types in `boundaries` plus one, otherwise. In both cases, the final column gives deletion cost, and the final row gives insertion cost. In the first case, the second-last row and column are for unclassified boundaries.}
+
+\item{transCost}{a transposition cost: either a single value, or a vector with the same length as the number of rows/columns in `m`.}
+
+\item{boundaries}{A vector of boundary symbols that will exist in the data.}
+
+\item{noboundary}{A symbol assigned for unclassified boundary types. This will be appended to lines that do not end in any symbol found in `boundaries`. Use "" if unclassified boundaries are not allowed; lines not ending with a defined boundary type will then be treated as not ending in a boundary.}
+
+\item{trans}{If `TRUE`, the transposition operation will be performed..}
+
+\item{K}{Number of iterations}
+
+\item{data1}{annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU}
+
+\item{data2}{annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU}
 }
 \value{
-IAA value for Inter-annotator agreement under 1000 simulation
+IAA value for Inter-annotator agreement
 }
 \description{
 Inter-annotator agreement
