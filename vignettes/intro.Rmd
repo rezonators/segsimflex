@@ -24,6 +24,6 @@ t01_sim = segsimflex::sim_Score(nccu_t001[[1]], nccu_t001[[2]], transCost = tran
 ```
 
 Get IAA (K = 2 for speed, for display purposes):
-```{r}
+```{r, message=F}
 t01_iaa_m = segsimflex::IAA(nccu_t001[[1]], nccu_t001[[2]], transCost = transCost, m = M_nccu, boundaries = bounds_nccu, K = 2)
 ```
