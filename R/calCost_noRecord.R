@@ -176,7 +176,7 @@ parDist1V4 <- function(t1,t2, m_cost , order, transCost, max = Inf, costSoFar = 
             #There must have been a transposition already.
             #cumulActions = cumulActions + 1
             opCost = m_cost [which (order == e1),which (order == e2)]
-            result =(c(opCost, 0) + parDist1V4(s1,s2,m, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv))
+            result =(c(opCost, 0) + parDist1V4(s1,s2,m_cost, order, transCost, max, costSoFar + opCost, cumulActions, prevResultsEnv))
           } else if(length(matches) > 0){
             opCost = m_cost [which (order == t1_list[matches[1]]),which (order == t2_list[matches[1]])]
             #Reason why line below is commented out:

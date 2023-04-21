@@ -19,10 +19,11 @@ M_nccu = matrix(
   nrow = 6)
 bounds_nccu = c(",", ".", "?", "--")
 transCost = (1-M_nccu[,6])*.5
-t01_sim = sim_Score(nccu_t001[[1]], nccu_t001[[2]], transCost = transCost, m = M_nccu, boundaries = bounds_nccu)
+nccu_t001 = nccu_squareno[[1]]
+t01_sim = segsimflex::sim_Score(nccu_t001[[1]], nccu_t001[[2]], transCost = transCost, m = M_nccu, boundaries = bounds_nccu)
 ```
 
 Get IAA (K = 2 for speed, for display purposes):
 ```{r}
-t01_iaa_m = IAA(nccu_t001[[1]], nccu_t001[[2]], transCost = transCost, m = M_nccu, boundaries = bounds_nccu, K = 2)
+t01_iaa_m = segsimflex::IAA(nccu_t001[[1]], nccu_t001[[2]], transCost = transCost, m = M_nccu, boundaries = bounds_nccu, K = 2)
 ```

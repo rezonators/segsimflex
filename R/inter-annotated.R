@@ -127,13 +127,30 @@ IAA <- function(d1,d2, record = FALSE, m = NA,
   order = c(boundaries,noboundary,' ')
   transCost=expandTrans(transCost,order)
 
+  # for inter-annotated agreement
+  data1Num = bdNum(bd1)  # calculate the number of boundries for a file
+  data2Num = bdNum(bd2)  # calculate the number of boundries for a file
+
+  data1numBd = numBd(bd1, order)#number of boundry in each kind
+  data1Number = sum(data1numBd) #get total number of boundry
+  data1Place = gePlace(data1Num, data1Number)#num is total number of boundry, number is number of boundry
+
+  data2numBd = numBd(bd2, order)
+  data2Number = sum(data2numBd) #get total number of
+  data2Place = gePlace(data2Num, data2Number)#num is total number of boundry, number is number of boundry
+
+  #main function
+  tsim_N = numeric(K)
+  tsim_B = numeric(K)
+  bdNumber=bdNumV2(bd1)
+
   for (i in seq(1,K)){
     message(paste0("Doing iteration ", i))
     dataBd1 = speaker_num(bd1,data1Place,data1Number,data1numBd,data1Num,order)
     dataBd2 = speaker_num(bd2,data2Place,data2Number,data2numBd,data2Num,order)
     cost = calCost1V2(dataBd1,dataBd2, m, order, transCost)#If only need to use calculate cost without using similarity score, use calCost1
-    sim_N =simScore(bdNumber,cost[1])
-    sim_B =simScore(cost[2],cost[1])
+    sim_N =costToScore(bdNumber,cost[1])
+    sim_B =costToScore(cost[2],cost[1])
     tsim_N[i] = sim_N
     tsim_B[i] = sim_B
   }
