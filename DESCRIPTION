@@ -2,7 +2,7 @@ Package: segsimflex
 Type: Package
 Title: Similarity Score and Inter-Annotator Agreement Calculation
 Version: 0.1.3
-Author: Yujie Li
+Author: Yujie Li <yujie_@ucsb.edu>, Ryan Lai <kayaulai@umail.ucsb.edu>
 Maintainer: Ryan Lai <kayaulai@umail.ucsb.edu>
 Description: Calculate Similarity Score and Inter-Annotator Agreement between two different annotations on the same discourse 
 License: MIT + file LICENSE
@@ -13,10 +13,14 @@ Imports:
     data.table,
     dplyr,
     readr,
-    reshape
+    reshape,
+    rezonateR (>= 0.1.2.0),
+    stringr
 Depends: 
     R (>= 2.10),
     tidyverse
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Remotes: 
+    rezonators/rezonateR

@@ -18,15 +18,6 @@ removeUT = function(data1){
 }
 
 
-#' Compare Difference of Words Between Two Annotations
-#'
-#' @param data1 annotation_1 from read_csv,the result after processing a .rez through the rezTrans file.
-#' @param data2 annotation_2 from read_csv, the result after processing a .rez through the rezTrans file.
-#'
-#' @return A dataframe of different lines. If the two files are the same, return null.
-#' @export
-#'
-#'
 compareDiff = function(data1,data2){
   data1=removeUT(data1)
   data2=removeUT(data2)

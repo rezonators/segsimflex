@@ -1,15 +1,3 @@
-library(data.table)
-library(readr)
-library(reshape)
-library(tidyverse)
-library(dplyr)
-
-source("R/preprocessing.R")
-source("R/helperFunctions.R")
-
-
-
-
 parDist1V3 <- function(t1,t2, m_cost , order, transCost, max = Inf, costSoFar = 0, cumulActions = 0){
   if(costSoFar < max){
     t1_trailing_sp = str_extract_last(t1, " +") %>% nchar %>% replace_na(0)
@@ -293,25 +281,6 @@ calCostNoTrans1 <- function(l1,l2, m, order){
   return(c(cost, actions))
 }
 
-
-#' Calculate the cost of changing one annotation to the other
-#'
-#' @param l1 IU list1: a list of intonation units
-#' @param l2 IU list1: a list of intonation units
-#' @param m similarity matrix to customize substitution cost
-#'
-#' @return cost
-#' @export
-#'
-#' @examples
-#' m=matrix(data =
-#' c(1,0,0,0,0,0,0,
-#' 0,1,0,0,0,0,0,
-#' 0,0,1,0,0,0,0,
-#' 0,0,0,1,0,0,0,
-#' 0,0,0,0,1,0,0,
-#' 0,0,0,0,0,1,0,
-#' 0,0,0,0,0,0,1), nrow=7)
 calCost1V2 <- function(l1,l2,m_sim =matrix(data =c(1,0,0,0,0,0,0,
                                               0,1,0,0,0,0,0,
                                               0,0,1,0,0,0,0,

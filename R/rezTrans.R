@@ -1,13 +1,9 @@
-
-
 library(rezonateR)
-library(rjson)
 
 
 #' Inter-annotator agreement
 #'
 #' @param inPath The string of the path of the .rez file
-#' @param outPath The string of the path of the output csv file
 #'
 #' @return A data frame that can be used for similarity score and inter-annotated agreement
 #' @export

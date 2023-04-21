@@ -204,7 +204,7 @@ genBdV2 = function(d, boundaries, noboundary){
     T ~ Utterance
   ))
 
-  d= replace_multiBD(d, boundaries, noboundary)
+  #d= replace_multiBD(d, boundaries, noboundary)
   boundary_regex_all = paste0(" (", sapply(c(boundaries, noboundary), function(b) paste0("\\", strsplit(b, ""), collapse = "")) %>% paste0(collapse = "|"), ")")
 
   d = d %>%
@@ -249,22 +249,28 @@ expandTrans <- function (t,o){
 # convert hex to unicode
 hex.chr <- function(hex) {intToUtf8(paste0("0x", hex))}
 
+find_multiBD = function(boundaries){
+  multibd = boundaries[sapply(boundaries, function(x) nchar(x) > 1)]
+  if(length(multibd)> 0) new_boundaries = sapply(1:length(multibd), function(x) hex.chr(as.hexmode(255+x)))
+  names(new_boundaries) = multibd
+  new_boundaries
+}
+
+str_replace_last = function(strings, regex, replacement){
+  contains = str_ends(strings, regex)
+  locs = str_locate_all(strings, regex)
+  sapply(1:length(strings), function(i){
+    curr_locs = locs[[i]]
+    if(nrow(curr_locs) > 0 & contains[i]) paste0(substring(strings[i], 1, curr_locs[nrow(curr_locs), 1] - 1), replacement)
+    else NA
+  })
+}
+
 # replace multiboundry
-replace_multiBD <- function (d, boundaries, noboundary){
-  all_bd = c(boundaries, noboundary)
-  multibd = c()
-  for (i in all_bd){
-    if (length(i)>1){
-      multibd=c(multibd, i)
-    }
+replace_multiBD <- function (d, new_boundaries){
+  for (x in names(new_boundaries)){
+    d$Utterance= str_replace_all(d$Utterance, x, new_boundaries[x])
   }
-  temp = 256
-  for (x in multibd){
-    for (i in seq(1,length(d$Utterance))){
-      d$Utterance[i]=gsub(x, hex.chr(as.hexmode(temp)), d$Utterance[i])
-    }
-    temp = temp+1
-  }
-  return (d)
+  d
 }
 
