@@ -2,8 +2,10 @@ Package: segsimflex
 Type: Package
 Title: Similarity Score and Inter-Annotator Agreement Calculation
 Version: 0.1.3
-Author: c(person("Li", "Yujie", email = "yujie_li@ucsb.edu", role = c("aut"),
-    person("Lai", "Ryan Ka Yau", email = "kayaulai@ucsb.edu", role = c("cre", "aut")))
+Authors@R: c(
+    person("Yujie", "Li", email = "yujie_li@ucsb.edu", role = c("aut")),
+    person("Ryan Ka Yau", "Lai", email = "kayaulai@ucsb.edu", role = c("cre", "aut")),
+    person("Olivia", "Jonokuchi", email = "ojonokuchi@ucsb.edu", role = c("aut")))
 Maintainer: Ryan Ka Yau Lai <kayaulai@umail.ucsb.edu>
 Description: Calculate Similarity Score and Inter-Annotator Agreement between two different annotations on the same discourse 
 License: MIT + file LICENSE
