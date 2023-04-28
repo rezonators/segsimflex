@@ -11,18 +11,6 @@ numBd <- function(bd, order){ # Used to get the number of each kind's boundary i
         }
       }
 
-      # if (substring(bd[1,s],i,i) == ","){
-      #   commaNum = commaNum + 1
-      # }
-      # if (substring(bd[1,s],i,i) == "."){
-      #   periodNum = periodNum + 1
-      # }
-      # if (substring(bd[1,s],i,i) == "?"){
-      #   questionNum = questionNum + 1
-      # }
-      # if (substring(bd[1,s],i,i) == "+"){
-      #   dashNum = dashNum + 1
-      # }
       l=l+1
     }
     n=n+l
@@ -62,9 +50,8 @@ insertBd <- function(place,numBd,number,num,bd){ #insert boundary based on gePla
   boundaryList = paste(boundaryList, collapse = "")
   return (boundaryList)
 }
-speaker_num <- function(bd,dataPlace,number,numBd,num,order){ #generate random boundaryList
-  #allP=c(",",".","?","+")
-  #boundaryList = rep(" ",num)
+getDistributionsFromAnno <- function(bd,dataPlace,number,numBd,num,order){ #generate random boundaryList
+
   cumNumList = c(1, cumsum(numBd))
   for (i in seq(1,length(bd))){
     for (j in seq(1,nchar(bd[[i]]))){
@@ -88,6 +75,36 @@ createBD <-function(d, boundaries,noboundary){
   return(bdlist1)
 }
 
+numBd_s <-function(bd, order){
+  total_num=0
+  for (s in length(bd)){  # for each speaker why length (bd) mens speaker here?
+      total_num =total_num +nchar(bd[s])
+  }
+  #print(typeof(Num))
+  result = rep(total_num/length(order),length(order))
+
+  return(result)
+}
+
+numBd_ms <-function(bd, order){
+  total_num=0
+  zero=0
+  for (s in length(bd)){  # for each speaker why length (bd) mens speaker here?
+    for (i in seq(1,nchar(bd[s]))){  # for index of element in each list
+      e =substring(bd[1,s],i,i)
+      if (e != order[length(order)]){
+        total_num =total_num +1
+      }else{
+        zero=zero+1
+      }
+    }
+  }
+  result = c(rep(total_num/(length(order)-1),(length(order)-1)),zero)
+
+  return(result)
+}
+
+
 #' Inter-annotator agreement
 #'
 #' @param data1 annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU
@@ -103,7 +120,8 @@ IAA <- function(d1,d2, record = FALSE, m = NA,
                 boundaries = c(",", ".", "?", "-", "+"),
                 noboundary = ";",
                 trans = TRUE,
-                K = 100){
+                K = 100,
+                metric= "kappa"){
 
   asim=sim_Score(d1,d2, m = m, boundaries = boundaries, noboundary = noboundary, transCost = transCost, trans  = trans, record = F)#check similarity score of two data input
 
@@ -146,8 +164,31 @@ IAA <- function(d1,d2, record = FALSE, m = NA,
 
   for (i in seq(1,K)){
     message(paste0("Doing iteration ", i))
-    dataBd1 = speaker_num(bd1,data1Place,data1Number,data1numBd,data1Num,order)
-    dataBd2 = speaker_num(bd2,data2Place,data2Number,data2numBd,data2Num,order)
+
+    if (metric= "kappa"){
+      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order, metric)
+      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order, metric)
+    }
+    if (metric= "pi"){
+      datanumBdTemp=(data1numBd+data1numBd)/2
+      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,datanumBdTemp,data1Num,order, metric)
+      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,datanumBdTemp,data2Num,order, metric)
+    }
+    if (metric= "s"){
+      data1numBd = numBd_s(bd1, order)
+      data2numBd = numBd_s(bd2, order)
+      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order, metric)
+      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order, metric)
+    }
+    if (metric= "s_modfieid"){
+      data1numBd = numBd_ms(bd1, order)
+      data2numBd = numBd_ms(bd2, order)
+      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order, metric)
+      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order, metric)
+    }
+
+
+
     cost = calCost1V2(dataBd1,dataBd2, m, order, transCost)#If only need to use calculate cost without using similarity score, use calCost1
     sim_N =costToScore(bdNumber,cost[1])
     sim_B =costToScore(cost[2],cost[1])
