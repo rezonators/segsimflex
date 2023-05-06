@@ -166,25 +166,25 @@ IAA <- function(d1,d2, record = FALSE, m = NA,
     message(paste0("Doing iteration ", i))
 
     if (metric= "kappa"){
-      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order, metric)
-      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order, metric)
+      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order)
+      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order)
     }
     if (metric= "pi"){
-      datanumBdTemp=(data1numBd+data1numBd)/2
-      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,datanumBdTemp,data1Num,order, metric)
-      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,datanumBdTemp,data2Num,order, metric)
+      datanumBdTemp=(data1numBd+data2numBd)/2
+      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,datanumBdTemp,data1Num,order)
+      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,datanumBdTemp,data2Num,order)
     }
     if (metric= "s"){
       data1numBd = numBd_s(bd1, order)
       data2numBd = numBd_s(bd2, order)
-      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order, metric)
-      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order, metric)
+      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order)
+      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order)
     }
     if (metric= "s_modfieid"){
       data1numBd = numBd_ms(bd1, order)
       data2numBd = numBd_ms(bd2, order)
-      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order, metric)
-      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order, metric)
+      dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order)
+      dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order)
     }
 
 
