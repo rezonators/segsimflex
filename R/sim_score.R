@@ -74,8 +74,9 @@ sim_Score<-function(d1,d2, record = FALSE, m = NA,
     }else{
       cost=calCostNoTrans1(bdlist1,bdlist2,m,order)
       bdNumber=bdNumV2(bdlist1)
-      sim=costToScore(bdNumber,cost)
-      return(sim)
+      sim_N =costToScore(bdNumber,cost[1])
+      sim_B =costToScore(cost[2],cost[1])
+      return(c(sim_N,sim_B))
     }
 
   }

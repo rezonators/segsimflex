@@ -267,3 +267,23 @@ replace_multiBD <- function (d, new_boundaries){
   d
 }
 
+
+create_dfs <- function(x){
+  result = list()
+  for (anno in x){
+    speaker = str_extract_all(anno, "[^\\s]*?: ")
+    content = strsplit(anno, split = speaker[[1]][1])[[1]][2]
+    for (s in speaker[[1]]){
+
+      temp = c()
+      for (i in content){
+        temp = c(temp, strsplit(i, split = s)[[1]])
+      }
+      content = temp
+    }
+    df=data.frame(speaker, content)
+    colnames(df) <- c("Speaker","Utterance")
+    result = list(result, df)
+  }
+  return (result)
+}
