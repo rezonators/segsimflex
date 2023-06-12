@@ -224,10 +224,6 @@ genBdV2 = function(d, boundaries, noboundary){
   result
 }
 
-#' Two separate intonation unit segmentations from text 049 of the
-#' NCCU corpus.
-"nccu_t049"
-
 
 # deal with transcost
 expandTrans <- function (t,o){
