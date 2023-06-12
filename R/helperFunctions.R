@@ -244,9 +244,11 @@ hex.chr <- function(hex) {intToUtf8(paste0("0x", hex))}
 
 find_multiBD = function(boundaries){
   multibd = boundaries[sapply(boundaries, function(x) nchar(x) > 1)]
-  if(length(multibd)> 0) new_boundaries = sapply(1:length(multibd), function(x) hex.chr(as.hexmode(255+x)))
-  names(new_boundaries) = multibd
-  new_boundaries
+  if(length(multibd)> 0){
+    new_boundaries = sapply(1:length(multibd), function(x) hex.chr(as.hexmode(255+x)))
+    names(new_boundaries) = multibd
+    new_boundaries
+  } else character(0)
 }
 
 str_replace_last = function(strings, regex, replacement){
@@ -267,23 +269,59 @@ replace_multiBD <- function (d, new_boundaries){
   d
 }
 
+splitAt = function(content, at){
+  if(nchar(content) > max(at)){
+    begins = c(1, at + 2)
+    ends = c(at, nchar(content))
+    result = sapply(1:(length(at) + 1), function(x) substr(content, begins[x], ends[x]))
+  } else {
+    begins = c(1, at[-length(at)] + 2)
+    ends = at
+    result = sapply(1:length(at), function(x) substr(content, begins[x], ends[x]))
+  }
+  result
+}
 
-create_dfs <- function(x){
+trailLeadingSpace = function(strings){
+  sapply(strings, function(string){
+    if(substr(string, 1, 1) == " ") substr(string, 2, nchar(string)) else string
+  })
+}
+
+#' Convert plaintext strings to data.frames for segsimflex
+#'
+#' @param x The strings to be converted. Generally of length 2 (for the two annotations).
+#' @param boundary_regex Regular expression for boundaries.
+#' @param speaker_regex Regular expression for participant labels.
+#'
+#' @return
+#' @export
+#'
+#' @examples create_dfs(c("JOHN: Hello , how are you ? MARY: I am fine , thank you .", "JOHN: Hello how are you ? MARY: I am fine thank you ."))
+#' create_dfs(c("A: 下 雨 天 , 留 客 . 天 留 , 我 不 留 . B: 下 雨 天 , 留 客 天 , 留 我 不 ? 留 !", "A: 下 雨 天 留 客 . 天 留 我 不 留 . B: 下 雨 天 , 留 客 天 , 留 我 不 ? 留 ."))
+create_dfs <- function(x, boundary_regex = c(",|\\.|(--)|\\?"), speaker_regex = " {0,1}[^\\s]*?: "){
   result = list()
-  for (anno in x){
-    speaker = str_extract_all(anno, "[^\\s]*?: ")
+  for (i in 1:length(x)){
+    anno = x[i]
+    speaker = str_extract_all(anno, speaker_regex)
     content = strsplit(anno, split = speaker[[1]][1])[[1]][2]
     for (s in speaker[[1]]){
-
       temp = c()
       for (i in content){
         temp = c(temp, strsplit(i, split = s)[[1]])
       }
       content = temp
     }
-    df=data.frame(speaker, content)
-    colnames(df) <- c("Speaker","Utterance")
-    result = list(result, df)
+
+    speaker = trailLeadingSpace(speaker[[1]])
+
+    boundLocs = str_locate_all(content, boundary_regex) %>% lapply(function(x) x[,2][x[,2] != 1])
+    noFinalBound = sapply(1:length(boundLocs), function(x) max(boundLocs[[x]]) != nchar(content[x]))
+    content_new = lapply(1:length(content), function(x) splitAt(content[x], boundLocs[[x]]))
+    segmentNums = sapply(boundLocs, length) + noFinalBound
+
+    result[[i]] = data.frame(Speaker = rep(speaker, segmentNums),
+                                  Utterance = unlist(content_new))
   }
-  return (result)
+  result
 }

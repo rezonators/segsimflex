@@ -235,10 +235,15 @@ calCostV2 <- function(l1,l2,m_sim=matrix(data =c(1,0,0,0,0,0,0,
                                               0,0,0,0,0,0,1), nrow=7),order,transCost){
 
 
-  record = data.frame()
+  record = data.frame(type = character(0),
+                      e1 = character(0),
+                      e2 = character(0),
+                      pass = character(0),
+                      pos1 = character(0),
+                      pos2 = character(0))
   subCost=1  # pre-set substitution cost
   # transCost=0.5  # pre-set transition cost of one space
-  m_cost =1-m_sim #Similaritie sto differences
+  m_cost =1-m_sim #Similarities to differences
 
   if (length(l1)!=length(l2)){
     stop ("different speakers try again")

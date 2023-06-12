@@ -13,7 +13,8 @@ IAA(
   boundaries = c(",", ".", "?", "-", "+"),
   noboundary = ";",
   trans = TRUE,
-  K = 100
+  K = 100,
+  metric = "kappa"
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ IAA(
 \item{trans}{If `TRUE`, the transposition operation will be performed..}
 
 \item{K}{Number of iterations}
+
+\item{metric}{One of `"kappa"` (Cohen's kappa), `"pi"` (Scott's pi), `"s"` (Bennett's S), or `"s_modified"` (Bennett's S, except with the probability of non-boundary estimated from data).}
 
 \item{data1}{annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU}
 

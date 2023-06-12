@@ -110,6 +110,7 @@ numBd_ms <-function(bd, order){
 #' @param data1 annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU
 #' @param data2 annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU
 #' @param K Number of iterations
+#' @param metric One of `"kappa"` (Cohen's kappa), `"pi"` (Scott's pi), `"s"` (Bennett's S), or `"s_modified"` (Bennett's S, except with the probability of non-boundary estimated from data).
 #' @inheritParams sim_Score
 #'
 #' @return IAA value for Inter-annotator agreement
@@ -165,22 +166,22 @@ IAA <- function(d1,d2, record = FALSE, m = NA,
   for (i in seq(1,K)){
     message(paste0("Doing iteration ", i))
 
-    if (metric= "kappa"){
+    if (metric== "kappa"){
       dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order)
       dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order)
     }
-    if (metric= "pi"){
+    if (metric== "pi"){
       datanumBdTemp=(data1numBd+data2numBd)/2
       dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,datanumBdTemp,data1Num,order)
       dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,datanumBdTemp,data2Num,order)
     }
-    if (metric= "s"){
+    if (metric== "s"){
       data1numBd = numBd_s(bd1, order)
       data2numBd = numBd_s(bd2, order)
       dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order)
       dataBd2 = getDistributionsFromAnno(bd2,data2Place,data2Number,data2numBd,data2Num,order)
     }
-    if (metric= "s_modfieid"){
+    if (metric== "s_modified"){
       data1numBd = numBd_ms(bd1, order)
       data2numBd = numBd_ms(bd2, order)
       dataBd1 = getDistributionsFromAnno(bd1,data1Place,data1Number,data1numBd,data1Num,order)

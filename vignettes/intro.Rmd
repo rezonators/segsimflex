@@ -5,10 +5,19 @@ output:
     df_print: paged
 ---
 
-Get similarity score:
+Get similarity score, with a record of operations taken (simple example):
 
 ```{r, message=F}
 library(segsimflex)
+
+data_raw = c("JOHN: Hello , how are you ? MARY: I am fine , thank you .", "JOHN: Hello how are you ? MARY: I am fine thank you .")
+data_df = create_dfs(data_raw)
+segsimflex::sim_Score(data_df[[1]], data_df[[2]], boundaries = c(",", "?", "."), record = T)
+```
+
+
+Get similarity score:
+```{r, message=F}
 M_nccu = matrix(
   c(1, .5, .25, .25, 1, 0,
     .5, 1, .5, .5, 1, .25,
