@@ -290,7 +290,7 @@ trailLeadingSpace = function(strings){
 #' @param boundary_regex Regular expression for boundaries.
 #' @param speaker_regex Regular expression for participant labels.
 #'
-#' @return
+#' @return A list of two data frames, one per annotator.
 #' @export
 #'
 #' @examples create_dfs(c("JOHN: Hello , how are you ? MARY: I am fine , thank you .", "JOHN: Hello how are you ? MARY: I am fine thank you ."))

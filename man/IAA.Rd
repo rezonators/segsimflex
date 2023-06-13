@@ -7,7 +7,6 @@
 IAA(
   d1,
   d2,
-  record = FALSE,
   m = NA,
   transCost = 0.5,
   boundaries = c(",", ".", "?", "-", "+"),
@@ -22,8 +21,6 @@ IAA(
 
 \item{d2}{A data.frame of the second annotator's annotation, similar to `d1`.}
 
-\item{record}{Whether you want to get the step of transformation (slow process!).}
-
 \item{m}{A similarity matrix to customize substitution cost. The size of the matrix should either be the number of boundary types in `boundaries` plus two, if `noboundary` has been set, or the number of boundary types in `boundaries` plus one, otherwise. In both cases, the final column gives deletion cost, and the final row gives insertion cost. In the first case, the second-last row and column are for unclassified boundaries.}
 
 \item{transCost}{a transposition cost: either a single value, or a vector with the same length as the number of rows/columns in `m`.}
@@ -37,10 +34,6 @@ IAA(
 \item{K}{Number of iterations}
 
 \item{metric}{One of `"kappa"` (Cohen's kappa), `"pi"` (Scott's pi), `"s"` (Bennett's S), or `"s_modified"` (Bennett's S, except with the probability of non-boundary estimated from data).}
-
-\item{data1}{annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU}
-
-\item{data2}{annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU}
 }
 \value{
 IAA value for Inter-annotator agreement

@@ -107,8 +107,6 @@ numBd_ms <-function(bd, order){
 
 #' Inter-annotator agreement
 #'
-#' @param data1 annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU
-#' @param data2 annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU
 #' @param K Number of iterations
 #' @param metric One of `"kappa"` (Cohen's kappa), `"pi"` (Scott's pi), `"s"` (Bennett's S), or `"s_modified"` (Bennett's S, except with the probability of non-boundary estimated from data).
 #' @inheritParams sim_Score
@@ -116,7 +114,7 @@ numBd_ms <-function(bd, order){
 #' @return IAA value for Inter-annotator agreement
 #' @export
 #'
-IAA <- function(d1,d2, record = FALSE, m = NA,
+IAA <- function(d1,d2, m = NA,
                 transCost=0.5,
                 boundaries = c(",", ".", "?", "-", "+"),
                 noboundary = ";",

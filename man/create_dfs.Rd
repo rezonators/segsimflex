@@ -17,6 +17,9 @@ create_dfs(
 
 \item{speaker_regex}{Regular expression for participant labels.}
 }
+\value{
+A list of two data frames, one per annotator.
+}
 \description{
 Convert plaintext strings to data.frames for segsimflex
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/rezTrans.R
 \name{rezTrans}
 \alias{rezTrans}
-\title{Inter-annotator agreement}
+\title{Transform .rez file to the required format}
 \usage{
 rezTrans(inPath)
 }
@@ -13,5 +13,5 @@ rezTrans(inPath)
 A data frame that can be used for similarity score and inter-annotated agreement
 }
 \description{
-Inter-annotator agreement
+Transform .rez file to the required format
 }

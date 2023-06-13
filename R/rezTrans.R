@@ -1,7 +1,7 @@
 library(rezonateR)
 
 
-#' Inter-annotator agreement
+#' Transform .rez file to the required format
 #'
 #' @param inPath The string of the path of the .rez file
 #'
