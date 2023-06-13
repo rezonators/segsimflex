@@ -257,7 +257,7 @@ calCostV2 <- function(l1,l2,m_sim=matrix(data =c(1,0,0,0,0,0,0,
   cost=0  # initialize the total cost
   actions = 0
   fullMatches = character(0)
-  for (s in seq(1,length(l1))){  # for each speacker
+  for (s in seq(1,length(l1))){  # for each speaker
     pos1=seq(nchar(l1[[s]]))
     pos2=seq(nchar(l2[[s]]))
 
@@ -269,7 +269,7 @@ calCostV2 <- function(l1,l2,m_sim=matrix(data =c(1,0,0,0,0,0,0,
     #First do all the straightforward substitutions
     posMatch = sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != " " & substring(currBlist2, x, x) != " ")
     substPos = posMatch & sapply(1:nchar(currBlist1), function(x) substring(currBlist1, x, x) != substring(currBlist2, x, x))
-    fullMatches = currBlistList1[currBlistList1 == currBlistList2 & currBlistList1 != " "]
+    fullMatches = c(currBlistList1[currBlistList1 == currBlistList2 & currBlistList1 != " "], fullMatches)
 
     if(length(which(substPos)) > 0){
       cost = cost + sapply(which(substPos), function(x) m_cost [which(currBlistList1[x] == order), which(currBlistList2[x] == order)]) %>% sum

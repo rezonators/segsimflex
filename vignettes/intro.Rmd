@@ -14,6 +14,7 @@ data_raw = c("JOHN: Hello , how are you ? MARY: I am fine , thank you .", "JOHN:
 data_df = create_dfs(data_raw)
 segsimflex::sim_Score(data_df[[1]], data_df[[2]], boundaries = c(",", "?", "."), record = T)
 ```
+Here, `cost` indicates the total cost of the actions taken, which is 2 because of the two substitution operations (from `,` to ` `). `actions` indicates the total number of actions, including boundaries left intact, which is 4. `record` indicates all the operations performed. `fullMatches` gives the boundaries which matched in position and type. The final numbers are the similarity scores, normalised by the potential vs actual numbers of boundaries.
 
 
 Get similarity score:

@@ -56,8 +56,9 @@ sim_Score<-function(d1,d2, record = FALSE, m = NA,
       cost=calCostV2(bdlist1,bdlist2,m,order, transCost)
       #cost=calCostV2(bdlist1,bdlist2,m,order)
       bdNumber=bdNumV2(bdlist1)
-      sim=costToScore(bdNumber,as.numeric(cost[1]))
-      return(c(cost,sim))
+      sim_N=costToScore(bdNumber,as.numeric(cost[1]))
+      sim_B=costToScore(cost$action,as.numeric(cost[1]))
+      return(c(cost,sim_N = sim_N, sim_B = sim_B))
     }else{
       cost=calCost1V2(bdlist1,bdlist2,m,order,transCost) #returns cost + no. of ops
       bdNumber=bdNumV2(bdlist1)
@@ -69,8 +70,9 @@ sim_Score<-function(d1,d2, record = FALSE, m = NA,
     if (record == TRUE){
       cost=calCostNoTrans(bdlist1,bdlist2,m,order)
       bdNumber=bdNumV2(bdlist1)
-      sim=costToScore(bdNumber,as.numeric(cost[1]))
-      return(c(cost,sim))
+      sim_N=costToScore(bdNumber,as.numeric(cost[1]))
+      sim_B=costToScore(cost$action,as.numeric(cost[1]))
+      return(c(cost,sim_N = sim_N, sim_B = sim_B))
     }else{
       cost=calCostNoTrans1(bdlist1,bdlist2,m,order)
       bdNumber=bdNumV2(bdlist1)

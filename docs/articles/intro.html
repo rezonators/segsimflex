@@ -93,10 +93,21 @@ example):</p>
 <span><span class="co">## 2 Substitution  ,       3    3         FALSE</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $fullMatches</span></span>
-<span><span class="co">## [1] "."</span></span>
+<span><span class="co">## [1] "." "?"</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## [[5]]</span></span>
-<span><span class="co">## [1] 0.7777778</span></span></code></pre>
+<span><span class="co">## $sim_N</span></span>
+<span><span class="co">## [1] 0.7777778</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $sim_B</span></span>
+<span><span class="co">## [1] 0.5</span></span></code></pre>
+<p>Here, <code>cost</code> indicates the total cost of the actions
+taken, which is 2 because of the two substitution operations (from
+<code>,</code> to <code></code>). <code>actions</code> indicates the
+total number of actions, including boundaries left intact, which is 4.
+<code>record</code> indicates all the operations performed.
+<code>fullMatches</code> gives the boundaries which matched in position
+and type. The final numbers are the similarity scores, normalised by the
+potential vs actual numbers of boundaries.</p>
 <p>Get similarity score:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">M_nccu</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
@@ -117,7 +128,7 @@ example):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">t01_iaa_m</span> <span class="op">=</span> <span class="fu">segsimflex</span><span class="fu">::</span><span class="fu"><a href="../reference/IAA.html">IAA</a></span><span class="op">(</span><span class="va">nccu_t001</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">nccu_t001</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, transCost <span class="op">=</span> <span class="va">transCost</span>, m <span class="op">=</span> <span class="va">M_nccu</span>, boundaries <span class="op">=</span> <span class="va">bounds_nccu</span>, K <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">t01_iaa_m</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.7285696 0.6359635</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.7354592 0.6333383</span></span></code></pre>
   </main>
 </div>
 
