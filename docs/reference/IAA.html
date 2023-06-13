@@ -51,13 +51,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">IAA</span><span class="op">(</span></span>
 <span>  <span class="va">d1</span>,</span>
 <span>  <span class="va">d2</span>,</span>
-<span>  record <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  m <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  transCost <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  boundaries <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">","</span>, <span class="st">"."</span>, <span class="st">"?"</span>, <span class="st">"-"</span>, <span class="st">"+"</span><span class="op">)</span>,</span>
 <span>  noboundary <span class="op">=</span> <span class="st">";"</span>,</span>
 <span>  trans <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  K <span class="op">=</span> <span class="fl">100</span></span>
+<span>  K <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  metric <span class="op">=</span> <span class="st">"kappa"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -69,10 +69,6 @@
 
 <dt>d2</dt>
 <dd><p>A data.frame of the second annotator's annotation, similar to `d1`.</p></dd>
-
-
-<dt>record</dt>
-<dd><p>Whether you want to get the step of transformation (slow process!).</p></dd>
 
 
 <dt>m</dt>
@@ -99,12 +95,8 @@
 <dd><p>Number of iterations</p></dd>
 
 
-<dt>data1</dt>
-<dd><p>annotation_1 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU</p></dd>
-
-
-<dt>data2</dt>
-<dd><p>annotation_2 from read_csv, there are three columns in the csv files (Turn Speaker Utterance), each line is an Intonation Unit, space is used for tokenization, 'boundary' are IU boundaries and should go to the end of each IU</p></dd>
+<dt>metric</dt>
+<dd><p>One of `"kappa"` (Cohen's kappa), `"pi"` (Scott's pi), `"s"` (Bennett's S), or `"s_modified"` (Bennett's S, except with the probability of non-boundary estimated from data).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -119,7 +111,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Ryan Ka Yau Lai.</p>
+  <p></p><p>Developed by Yujie Li, Ryan Ka Yau Lai.</p>
 </div>
 
 <div class="pkgdown-footer-right">
